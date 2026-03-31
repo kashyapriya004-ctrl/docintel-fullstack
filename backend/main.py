@@ -108,11 +108,29 @@ def ask_question(request: QuestionRequest, db: Session = Depends(get_db)):
 
 # -------------------- GET LAST 10 HISTORY --------------------
 @app.get("/api/history")
-def get_history(db: Session = Depends(get_db)):
+def get_history(user_id: int, db: Session = Depends(get_db)):
 
     history = db.query(models.SearchHistory)\
+        .filter(models.SearchHistory.user_id == user_id)\
         .order_by(models.SearchHistory.timestamp.desc())\
         .limit(10)\
         .all()
 
     return history
+
+# -------------------- DELETE HISTORY --------------------
+@app.delete("/api/history/{history_id}")
+def delete_history(history_id: int, user_id: int, db: Session = Depends(get_db)):
+    history_item = db.query(models.SearchHistory).filter(
+        models.SearchHistory.id == history_id,
+        models.SearchHistory.user_id == user_id
+    ).first()
+    
+    if not history_item:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="History not found or unauthorized")
+        
+    db.delete(history_item)
+    db.commit()
+    
+    return {"message": "History deleted successfully"}

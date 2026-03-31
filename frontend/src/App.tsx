@@ -31,9 +31,10 @@ import {
   Eye,
   EyeOff,
   Sun,
-  Moon
+  Moon,
+  Trash2
 } from 'lucide-react';
-import { generatePolicyResponse } from './services/gemini';
+import { generatePolicyResponse, fetchHistory, deleteHistory } from './services/gemini';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // --- Theme Context ---
@@ -866,111 +867,144 @@ const AccountPage = () => {
 };
 
 const HistoryPage = () => {
+  const { user } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deleteModalOpen, setDeleteModalOpen] = useState<number | null>(null);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('docintel_history') || '[]');
-    setHistory(saved);
-  }, []);
+    if (user) {
+      setIsLoading(true);
+      fetchHistory(1).then(data => {
+        setHistory(data);
+        setIsLoading(false);
+      });
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
+
+  const confirmDelete = async (id: number) => {
+    try {
+      // Optimistic delete UI removal
+      setHistory(prev => prev.filter(item => item.id !== id));
+      setDeleteModalOpen(null);
+      await deleteHistory(id, 1);
+    } catch (err) {
+      console.error(err);
+      fetchHistory(1).then(setHistory);
+    }
+  };
+
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center w-full px-8">
+          <Archive size={64} className="text-gray-300 dark:text-gray-600 mb-6" />
+          <h2 className="text-2xl font-serif text-brand-primary dark:text-dark-primary mb-2">History Unavailable</h2>
+          <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">Guest queries are not saved. Please sign in to the application to maintain and review your personal search history.</p>
+          <Link to="/login" className="mt-8 px-8 py-3 bg-brand-cta text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-brand-cta/20">
+            Sign In Now
+          </Link>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#FDFBF7] dark:bg-dark-bg flex flex-col font-sans transition-colors duration-300">
-      {/* Top Navigation */}
-      <nav className="flex items-center justify-end px-12 py-8 bg-[#FDFBF7] dark:bg-dark-surface border-b border-gray-100 dark:border-dark-border sticky top-0 z-50 transition-colors duration-300">
-        <div className="flex items-center gap-12 text-lg font-serif text-[#5D4037] dark:text-dark-text">
-          <Link to="/" className="hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Home</Link>
-          <Link to="/ask" className="hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Ask AI</Link>
-          <div className="relative">
-            <Link to="/history" className="text-[#1A4D3E] dark:text-dark-primary font-bold">History</Link>
-            <div className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#8B2635] dark:bg-dark-secondary"></div>
-          </div>
-          <Link to="/login" className="hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Login</Link>
-          <ThemeToggle />
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="flex-1 max-w-5xl mx-auto w-full py-24 px-8">
-        <div className="mb-20 relative rounded-[3rem] overflow-hidden h-96 group">
-          <img 
-            src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=1920" 
-            alt="Library" 
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1A4D3E]/90 dark:from-dark-bg/90 to-transparent"></div>
-          <div className="absolute bottom-12 left-12">
-            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/70 dark:text-dark-bg/70 mb-4 block">Chronicle of Inquiry</span>
-            <h2 className="text-7xl font-serif text-white dark:text-dark-text leading-tight font-medium">Search History</h2>
-          </div>
+    <DashboardLayout>
+      <div className="max-w-4xl mx-auto py-12 px-8 w-full pb-20">
+        <div className="mb-12">
+          <h2 className="text-3xl font-serif text-brand-primary dark:text-dark-primary font-medium">Search History</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">Manage your past inquiries and responses.</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-20">
-          <Search className="absolute left-8 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" size={22} />
-          <input 
-            type="text" 
-            placeholder="Filter by keywords or themes..." 
-            className="w-full pl-20 pr-10 py-6 bg-white dark:bg-dark-surface border border-gray-200 dark:border-dark-border rounded-full shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1A4D3E] dark:focus:ring-dark-primary text-lg text-gray-600 dark:text-dark-text placeholder:text-gray-300 dark:placeholder:text-gray-600"
-          />
-        </div>
-
-        {/* Archive Items */}
-        <div className="space-y-10">
-          {history.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-gray-400 dark:text-gray-500 font-serif italic">The search history is currently empty. Your inquiries will appear here.</p>
-            </div>
-          ) : (
-            history.map((item, i) => (
+        {/* Modal Overlay */}
+        <AnimatePresence>
+          {deleteModalOpen !== null && (
+            <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+            >
               <motion.div 
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white dark:bg-dark-surface p-12 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-dark-border relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center group hover:shadow-xl hover:shadow-[#1A4D3E]/5 dark:hover:shadow-dark-primary/5 transition-all duration-500"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-brand-bg dark:bg-dark-surface w-full max-w-sm p-8 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-dark-border"
               >
-                <div className="absolute left-0 top-0 w-2 h-full bg-[#1A4D3E] dark:bg-dark-primary"></div>
-                <div className="flex-1 md:pr-16">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="px-3 py-1 bg-gray-50 dark:bg-dark-bg border border-gray-100 dark:border-dark-border text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 rounded-md">{item.tag}</span>
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{item.date}</span>
-                  </div>
-                  <h3 className="text-3xl font-serif text-[#1A4D3E] dark:text-dark-primary mb-6 leading-tight font-medium">{item.title}</h3>
-                  <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">{item.desc}</p>
+                <div className="w-16 h-16 bg-[#9E3D1E]/10 text-[#9E3D1E] rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Trash2 size={24} />
                 </div>
-                <Link to="/ask" className="mt-8 md:mt-0 flex items-center gap-3 px-8 py-4 bg-[#1A4D3E] dark:bg-dark-primary text-white dark:text-dark-bg text-sm font-bold rounded-full hover:bg-[#143d31] dark:hover:bg-opacity-90 transition-all shadow-lg shadow-[#1A4D3E]/20 dark:shadow-dark-primary/20">
-                  Revisit <ArrowRight size={18} />
-                </Link>
+                <h3 className="text-2xl font-serif text-brand-primary dark:text-dark-text mb-2">Delete this entry?</h3>
+                <p className="text-gray-500 mb-8 text-sm">This action cannot be undone.</p>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setDeleteModalOpen(null)} 
+                    className="flex-1 py-3 bg-white dark:bg-dark-bg text-gray-500 dark:text-gray-400 font-bold border border-gray-200 dark:border-dark-border rounded-xl hover:bg-gray-50 dark:hover:bg-dark-surface transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={() => confirmDelete(deleteModalOpen)} 
+                    className="flex-1 py-3 bg-[#9E3D1E] text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-[#9E3D1E]/20"
+                  >
+                    Delete
+                  </button>
+                </div>
               </motion.div>
-            ))
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
 
-        {/* Section Divider */}
-        <div className="mt-32 flex items-center justify-center gap-12">
-          <div className="h-px flex-1 bg-gray-200 dark:bg-dark-border"></div>
-          <span className="text-[11px] font-bold uppercase tracking-[0.4em] text-gray-400 dark:text-gray-500 whitespace-nowrap">Delve Deeper Into History</span>
-          <div className="h-px flex-1 bg-gray-200 dark:bg-dark-border"></div>
-        </div>
-      </main>
-
-    {/* Footer */}
-    <footer className="bg-[#F3F1EE] dark:bg-dark-bg py-24 px-12 mt-20 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-16">
-        <div className="max-w-md">
-          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400 leading-loose opacity-80">
-          </p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-24 gap-y-6 text-[11px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
-          <button className="text-left hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Privacy Policy</button>
-          <button className="text-left hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Institutional Access</button>
-          <button className="text-left hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Terms of Service</button>
-          <button className="text-left hover:text-[#1A4D3E] dark:hover:text-dark-primary transition-colors">Contact Archivist</button>
-        </div>
+        {isLoading ? (
+          <div className="text-center py-20 text-gray-500">Loading history...</div>
+        ) : history.length === 0 ? (
+          <div className="text-center py-24 bg-white dark:bg-dark-surface rounded-[2rem] border border-gray-100 dark:border-dark-border shadow-sm">
+            <Archive size={48} className="text-gray-200 dark:text-gray-700 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-600 dark:text-gray-300 mb-2 font-serif">No search history yet.</h3>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Start asking questions to build your history.</p>
+            <Link to="/ask" className="inline-block mt-8 px-8 py-3 bg-brand-primary dark:bg-dark-primary text-white font-bold rounded-xl hover:opacity-90 transition-colors shadow-lg shadow-brand-primary/20">
+              Make an Inquiry
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <AnimatePresence>
+              {history.map((item) => (
+                <motion.div 
+                  layout
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                  className="bg-white dark:bg-dark-surface p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-dark-border relative group hover:shadow-md transition-all"
+                >
+                  <div className="pr-16">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary mb-3">
+                      {new Date(item.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </p>
+                    <h3 className="text-xl font-bold text-brand-primary dark:text-dark-primary mb-3 font-serif">
+                      {item.question}
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                      {item.answer}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setDeleteModalOpen(item.id)}
+                    className="absolute top-8 right-8 p-3 text-gray-300 dark:text-gray-600 hover:text-[#9E3D1E] hover:bg-[#9E3D1E]/10 rounded-xl transition-all md:opacity-0 group-hover:opacity-100 focus:opacity-100"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
-    </footer>
-  </div>
+    </DashboardLayout>
   );
 };
 
