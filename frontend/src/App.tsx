@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import React, { useState, useEffect, ReactNode, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
@@ -36,6 +36,14 @@ import {
 } from 'lucide-react';
 import { generatePolicyResponse, fetchHistory, deleteHistory } from './services/gemini';
 import { AuthProvider, useAuth } from './context/AuthContext';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 // --- Theme Context ---
 const ThemeContext = createContext<{ theme: 'light' | 'dark', toggleTheme: () => void }>({
@@ -247,170 +255,293 @@ const LandingPage = () => (
   </div>
 );
 
+const GoogleAccountChooser = ({ 
+  mode, 
+  onClose,
+  onSelectAccount 
+}: { 
+  mode: 'signin' | 'signup', 
+  onClose: () => void,
+  onSelectAccount: (email: string, name: string) => void
+}) => {
+  const dummyAccounts = [
+    { email: 'jane.doe@docintel.ai', name: 'Dr. Jane Doe', active: true },
+    { email: 'student@university.edu', name: 'University Student', active: false }
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-md bg-white rounded-[24px] overflow-hidden shadow-2xl relative"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+           <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+        <div className="p-8 pb-4 text-center">
+          <svg className="w-10 h-10 mx-auto mb-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          <h2 className="text-[22px] font-medium text-gray-900 leading-tight mb-2">Sign in with Google</h2>
+          <div className="flex flex-col items-center gap-1 justify-center mt-3">
+             <div className="bg-black text-white w-6 h-6 flex items-center justify-center rounded-md">
+                <User size={14} />
+             </div>
+             <p className="text-sm font-medium text-gray-900 mt-1">Choose an account</p>
+             <p className="text-sm text-gray-600">to continue to DocIntel</p>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-200 mt-4">
+          <ul className="py-2">
+            {dummyAccounts.map((acc, idx) => (
+              <li key={idx}>
+                <button 
+                  onClick={() => onSelectAccount(acc.email, acc.name)}
+                  className={`w-full flex items-center px-6 py-3 hover:bg-[#f8fafd] transition-colors text-left ${acc.active ? 'bg-[#f8fafd]' : ''}`}
+                >
+                  <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium mr-3 shrink-0">
+                    {acc.name.charAt(0)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{acc.name}</p>
+                    <p className="text-xs text-gray-600 truncate">{acc.email}</p>
+                  </div>
+                  {acc.active && (
+                     <div className="px-2 py-[2px] rounded-full border border-gray-300 ml-2">
+                        <span className="text-[10px] text-gray-600">Signed out</span>
+                     </div>
+                  )}
+                </button>
+              </li>
+            ))}
+            <li>
+              <button 
+                onClick={onClose}
+                className="w-full flex items-center px-6 py-4 hover:bg-[#f8fafd] transition-colors border-t border-gray-100"
+              >
+                <div className="w-9 h-9 rounded-full flex items-center justify-center text-gray-600 mr-3 shrink-0">
+                  <User size={20} />
+                </div>
+                <p className="text-sm font-medium text-gray-800">Use another account</p>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <div className="p-6 text-xs text-gray-500 text-center leading-relaxed">
+          Before using this app, you can review DocIntel's privacy policy and terms of service.
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 const LoginPage = () => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('Researcher');
+  const [password, setPassword] = useState('');
   
-  const { login } = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
+  const [showGoogleChooser, setShowGoogleChooser] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { login, register, registeredUsers } = useAuth();
   const navigate = useNavigate();
+
+  const clearMessages = () => { setErrorMsg(''); setSuccessMsg(''); };
+
+  useEffect(() => { clearMessages(); }, [activeTab]);
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ 
-      name: name || (activeTab === 'signin' ? 'Verified Scholar' : 'New User'), 
-      email: email || 'scholar@docintel.ai', 
-      role: role 
-    });
-    navigate('/ask');
+    clearMessages();
+    
+    if (activeTab === 'signin') {
+      if (!email.trim()) { setErrorMsg("Please enter your email."); return; }
+      
+      const result = login(email, password);
+      if (!result.success && result.error) {
+        setErrorMsg(result.error);
+      } else {
+        navigate('/account');
+      }
+    } else {
+      if (!name.trim()) { setErrorMsg("Please enter your full name."); return; }
+      if (!email.trim()) { setErrorMsg("Please enter a valid email."); return; }
+      if (password.length < 6) { setErrorMsg("Password must be at least 6 characters."); return; }
+      
+      setIsSubmitting(true);
+      const result = register({ name, email, password, role: 'Researcher' });
+      
+      if (!result.success && result.error) {
+        setErrorMsg(result.error);
+        setIsSubmitting(false);
+      } else {
+        setSuccessMsg("Account created! You can now sign in.");
+        setTimeout(() => {
+          setIsSubmitting(false);
+          setActiveTab('signin');
+        }, 1200);
+      }
+    }
   };
   
+  const handleGoogleSelect = (gEmail: string, gName: string) => {
+    setShowGoogleChooser(false);
+    clearMessages();
+
+    if (activeTab === 'signin') {
+       const result = login(gEmail, undefined, true);
+       if (!result.success && result.error) {
+         setErrorMsg(result.error);
+         setActiveTab('signup');
+       } else {
+         navigate('/account');
+       }
+    } else {
+       const exists = registeredUsers.find(u => u.email === gEmail);
+       if (exists) {
+         setErrorMsg(`An account already exists for ${gEmail}. Please sign in instead.`);
+         setActiveTab('signin');
+       } else {
+         register({ name: gName, email: gEmail, password: 'google_oauth_mock_password', role: 'Researcher' });
+         login(gEmail, undefined, true);
+         navigate('/account');
+       }
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-brand-bg dark:bg-dark-bg transition-colors duration-300">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[#f0ede4] transition-colors duration-300">
+      
+      {showGoogleChooser && (
+         <GoogleAccountChooser 
+           mode={activeTab} 
+           onClose={() => setShowGoogleChooser(false)} 
+           onSelectAccount={handleGoogleSelect} 
+         />
+      )}
+
       <div className="mb-12 text-center">
-        <BookOpen className="w-12 h-12 text-brand-primary dark:text-dark-primary mx-auto mb-4" />
-        <h1 className="text-3xl font-bold text-brand-primary dark:text-dark-primary italic">DocIntel AI</h1>
+        <h1 className="text-4xl font-serif text-[#2d6a4f] italic">DocIntel AI</h1>
       </div>
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white dark:bg-dark-surface p-10 rounded-2xl shadow-xl border border-brand-primary/10 dark:border-dark-border"
+        className="w-full max-w-[420px] bg-white rounded-[16px] overflow-hidden border border-[#d1cfc7]"
       >
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-serif mb-2 text-brand-primary dark:text-dark-text">
-            {activeTab === 'signin' ? 'Sign In to DocIntel' : 'Create Your DocIntel Account'}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {activeTab === 'signin' 
-              ? 'Continue exploring education policies.' 
-              : 'Join to unlock personalized AI research.'}
-          </p>
+        <div className="flex border-b border-[#d1cfc7]">
+           <button 
+             onClick={() => !isSubmitting && setActiveTab('signin')}
+             className={`flex-1 py-4 text-sm font-bold transition-all ${activeTab === 'signin' ? 'text-[#2d6a4f] border-b-[3px] border-[#2d6a4f]' : 'text-gray-500 hover:text-gray-800'}`}
+             disabled={isSubmitting}
+           >
+             Sign in
+           </button>
+           <button 
+             onClick={() => !isSubmitting && setActiveTab('signup')}
+             className={`flex-1 py-4 text-sm font-bold transition-all ${activeTab === 'signup' ? 'text-[#2d6a4f] border-b-[3px] border-[#2d6a4f]' : 'text-gray-500 hover:text-gray-800'}`}
+             disabled={isSubmitting}
+           >
+             Create account
+           </button>
         </div>
         
-        {activeTab === 'signin' ? (
-          <form className="space-y-5" onSubmit={handleAuth}>
+        <div className="p-8 pb-6">
+          {errorMsg && (
+             <div className="mb-6 p-4 rounded-lg bg-[#fdf0ed] border border-[#f5c4b3] text-[#993c1d] text-sm">
+                {errorMsg}
+             </div>
+          )}
+          {successMsg && (
+             <div className="mb-6 p-4 rounded-lg bg-[#eaf3de] border border-[#c0dd97] text-[#3b6d11] text-sm">
+                {successMsg}
+             </div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleAuth}>
+            {activeTab === 'signup' && (
+               <div>
+                 <input 
+                   type="text" 
+                   value={name}
+                   onChange={(e) => setName(e.target.value)}
+                   placeholder="Full Name" 
+                   disabled={isSubmitting}
+                   className="w-full px-4 h-[44px] bg-white border border-[#d1cfc7] rounded-md focus:outline-none focus:border-[#2d6a4f] transition-all text-base placeholder:text-gray-400 text-gray-900"
+                 />
+               </div>
+            )}
             <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@university.edu" 
-                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
+                disabled={isSubmitting}
+                className="w-full px-4 h-[44px] bg-white border border-[#d1cfc7] rounded-md focus:outline-none focus:border-[#2d6a4f] transition-all text-base placeholder:text-gray-400 text-gray-900"
               />
             </div>
             
-            <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Password</label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••••••" 
-                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 hover:text-brand-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••" 
+                disabled={isSubmitting}
+                className="w-full px-4 h-[44px] pr-10 bg-white border border-[#d1cfc7] rounded-md focus:outline-none focus:border-[#2d6a4f] transition-all text-base placeholder:text-gray-400 text-gray-900"
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2d6a4f] transition-colors"
+                disabled={isSubmitting}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
             
-            <button type="submit" className="w-full flex items-center justify-center py-3.5 bg-brand-cta text-white font-bold rounded-lg hover:bg-opacity-90 transition-all mt-4">
-              Sign In
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center h-[44px] bg-[#9b3e1e] text-white font-bold rounded-md hover:bg-[#7d3219] transition-all mt-6 disabled:opacity-70"
+            >
+              {activeTab === 'signin' ? 'Sign In' : 'Create Account'}
             </button>
-            <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all">
-              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Continue with Google
+            
+            <div className="relative flex py-4 items-center">
+               <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            <button 
+              type="button" 
+              disabled={isSubmitting}
+              onClick={() => setShowGoogleChooser(true)}
+              className="w-full flex items-center justify-center gap-3 h-[44px] bg-white border border-[#d1cfc7] text-gray-700 font-medium text-sm rounded-md hover:bg-gray-50 transition-all disabled:opacity-70"
+            >
+              <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              {activeTab === 'signin' ? 'Continue with Google' : 'Sign up with Google'}
             </button>
           </form>
-        ) : (
-          <form className="space-y-4" onSubmit={handleAuth}>
-            <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Full Name</label>
-              <input 
-                type="text" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Dr. Jane Doe" 
-                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Role</label>
-              <div className="relative">
-                <select 
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm appearance-none"
-                >
-                  <option value="">Select your role</option>
-                  <option value="Student">Student</option>
-                  <option value="Researcher">Researcher</option>
-                  <option value="Faculty">Faculty</option>
-                  <option value="Other">Other</option>
-                </select>
-                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 rotate-90" size={18} />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="university-style placeholder" 
-                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Password</label>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••••••" 
-                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 hover:text-brand-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full flex items-center justify-center py-3.5 bg-brand-cta text-white font-bold rounded-lg hover:bg-opacity-90 transition-all mt-4">
-              Create Account
-            </button>
-            <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all">
-              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Continue with Google
-            </button>
-          </form>
-        )}
-        
-        <div className="mt-8 text-center pt-6 border-t border-brand-primary/10 dark:border-dark-border">
-          <button 
-            onClick={() => setActiveTab(activeTab === 'signin' ? 'signup' : 'signin')}
-            className="text-sm text-gray-500 hover:text-brand-cta transition-colors"
-          >
-            {activeTab === 'signin' ? (
-              <>New here? <span className="font-bold text-brand-primary">Create an account &rarr;</span></>
-            ) : (
-              <>Already have an account? <span className="font-bold text-brand-primary">Sign in &rarr;</span></>
-            )}
-          </button>
         </div>
+        
+        {activeTab === 'signin' && (
+          <div className="bg-[#fcfaf8] border-t border-[#d1cfc7] p-4 text-center">
+             <button 
+               onClick={() => !isSubmitting && setActiveTab('signup')}
+               className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+               disabled={isSubmitting}
+             >
+               New here? <span className="font-bold text-[#2d6a4f]">Create an account &rarr;</span>
+             </button>
+          </div>
+        )}
       </motion.div>
     </div>
   );
@@ -676,193 +807,59 @@ const InquiryPage = () => {
 
 const AccountPage = () => {
   const { user, logout } = useAuth();
-  
-  const [userData, setUserData] = useState({
-    name: user?.name || "Guest User",
-    email: user?.email || "guest@docintel.ai",
-    role: user?.role || "Guest",
-    institution: "Unknown",
-    bio: "Passionate about education policy and digital transformation in India.",
-    notifications: true,
-    language: "English"
-  });
+  const navigate = useNavigate();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [tempData, setTempData] = useState(userData);
+  // Route Protection is handled securely at the App level <ProtectedRoute> wrapper.
+  // But strictly fallback just in case.
+  if (!user) return null;
 
-  const handleSave = () => {
-    setUserData(tempData);
-    setIsEditing(false);
+  const handleSignOut = () => {
+    logout();
+    navigate('/login');
   };
 
   return (
-    <DashboardLayout>
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-12">
-          <h2 className="text-3xl font-serif text-brand-primary dark:text-dark-primary">Account Information</h2>
-          {!isEditing ? (
-            <button 
-              onClick={() => setIsEditing(true)}
-              className="px-6 py-2 bg-brand-secondary dark:bg-dark-secondary text-white dark:text-dark-bg font-bold rounded-full hover:bg-opacity-90 transition-all"
-            >
-              Edit Profile
-            </button>
-          ) : (
-            <div className="flex gap-4">
-              <button 
-                onClick={() => { setIsEditing(false); setTempData(userData); }}
-                className="px-6 py-2 border border-gray-200 dark:border-dark-border text-gray-500 dark:text-gray-400 font-bold rounded-full hover:bg-gray-50 dark:hover:bg-dark-surface transition-all"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleSave}
-                className="px-6 py-2 bg-brand-primary dark:bg-dark-primary text-white dark:text-dark-bg font-bold rounded-full hover:bg-opacity-90 transition-all"
-              >
-                Save Changes
-              </button>
-            </div>
-          )}
+    <div className="min-h-screen bg-brand-bg flex flex-col">
+      {/* Top Nav Block */}
+      <div className="w-full bg-[#2d6a4f] h-16 flex items-center justify-between px-8 shadow-sm">
+        <div className="flex items-center gap-3">
+          <BookOpen className="text-white w-6 h-6" />
+          <h1 className="text-xl font-serif text-white italic">DocIntel AI</h1>
+        </div>
+        <button 
+          onClick={handleSignOut}
+          className="text-white text-sm font-bold hover:text-opacity-80 transition-colors bg-white/10 px-4 py-2 rounded-lg"
+        >
+          Sign out
+        </button>
+      </div>
+
+      {/* Main Dashboard Content */}
+      <div className="flex-1 max-w-5xl mx-auto w-full p-8 md:p-12">
+        <h2 className="text-3xl font-serif text-[#2d6a4f] mb-8">
+          Welcome back, {user.name}
+        </h2>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-brand-primary/10">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Documents</p>
+            <p className="text-4xl font-serif text-[#2d6a4f]">0</p>
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-brand-primary/10">
+            <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Analyses</p>
+            <p className="text-4xl font-serif text-[#2d6a4f]">0</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Profile Card */}
-          <div className="md:col-span-1 flex flex-col gap-4">
-            <div className="bg-white dark:bg-dark-surface p-8 rounded-[2rem] border border-brand-primary/10 dark:border-dark-border shadow-sm text-center">
-              <div className="w-24 h-24 rounded-full bg-brand-bg dark:bg-dark-bg border-4 border-brand-primary/10 dark:border-dark-primary/10 flex items-center justify-center text-brand-primary dark:text-dark-primary mx-auto mb-6">
-                <User size={48} />
-              </div>
-              <h3 className="text-xl font-bold text-brand-primary dark:text-dark-primary mb-1">{userData.name}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{userData.role}</p>
-              <div className="pt-6 border-t border-brand-primary/10 dark:border-dark-border">
-                <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary dark:text-dark-secondary">
-                  <Globe size={14} />
-                  {user ? "Verified Scholar" : "Guest Account"}
-                </div>
-              </div>
-            </div>
-            {user && (
-              <button onClick={logout} className="w-full py-4 text-center font-bold text-brand-cta border border-brand-cta rounded-2xl hover:bg-brand-cta/10 transition-colors">
-                Sign Out
-              </button>
-            )}
-          </div>
-
-          {/* Details Form */}
-          <div className="md:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-dark-surface p-10 rounded-[2rem] border border-gray-100 dark:border-dark-border shadow-sm">
-              <h4 className="text-lg font-serif mb-8 dark:text-dark-text">Personal Details</h4>
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Full Name</label>
-                    {isEditing ? (
-                      <input 
-                        type="text" 
-                        value={tempData.name}
-                        onChange={(e) => setTempData({...tempData, name: e.target.value})}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
-                      />
-                    ) : (
-                      <p className="text-sm font-medium dark:text-dark-text">{userData.name}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Email Address</label>
-                    <p className="text-sm font-medium dark:text-dark-text">{userData.email}</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Role</label>
-                    {isEditing ? (
-                      <select 
-                        value={tempData.role}
-                        onChange={(e) => setTempData({...tempData, role: e.target.value})}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text appearance-none"
-                      >
-                        <option value="Student">Student</option>
-                        <option value="Researcher">Researcher</option>
-                        <option value="Educator">Educator</option>
-                        <option value="Policy Maker">Policy Maker</option>
-                      </select>
-                    ) : (
-                      <p className="text-sm font-medium dark:text-dark-text">{userData.role}</p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Institution</label>
-                    {isEditing ? (
-                      <input 
-                        type="text" 
-                        value={tempData.institution}
-                        onChange={(e) => setTempData({...tempData, institution: e.target.value})}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
-                      />
-                    ) : (
-                      <p className="text-sm font-medium dark:text-dark-text">{userData.institution}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Scholar Bio</label>
-                  {isEditing ? (
-                    <textarea 
-                      value={tempData.bio}
-                      onChange={(e) => setTempData({...tempData, bio: e.target.value})}
-                      rows={3}
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text resize-none"
-                    />
-                  ) : (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{userData.bio}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-dark-surface p-10 rounded-[2rem] border border-gray-100 dark:border-dark-border shadow-sm">
-              <h4 className="text-lg font-serif mb-8 dark:text-dark-text">Personalization & Preferences</h4>
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h5 className="text-sm font-bold dark:text-dark-text">Email Notifications</h5>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Receive weekly policy updates and analysis summaries.</p>
-                  </div>
-                  <button 
-                    onClick={() => isEditing && setTempData({...tempData, notifications: !tempData.notifications})}
-                    className={`w-12 h-6 rounded-full transition-all relative ${tempData.notifications ? 'bg-brand-primary' : 'bg-gray-200 dark:bg-dark-bg'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${tempData.notifications ? 'left-7' : 'left-1'}`}></div>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h5 className="text-sm font-bold dark:text-dark-text">Interface Language</h5>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Select your preferred language for the AI assistant.</p>
-                  </div>
-                  {isEditing ? (
-                    <select 
-                      value={tempData.language}
-                      onChange={(e) => setTempData({...tempData, language: e.target.value})}
-                      className="px-4 py-2 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none text-xs dark:text-dark-text"
-                    >
-                      <option value="English">English</option>
-                      <option value="Hindi">Hindi</option>
-                      <option value="Sanskrit">Sanskrit</option>
-                    </select>
-                  ) : (
-                    <p className="text-sm font-medium dark:text-dark-text">{userData.language}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Document Placeholder */}
+        <div className="bg-white border-2 border-dashed border-gray-200 rounded-3xl p-16 text-center flex flex-col items-center justify-center">
+          <FileText className="w-16 h-16 text-gray-300 mb-4" />
+          <h3 className="text-xl font-bold text-gray-600 mb-2">No documents yet</h3>
+          <p className="text-gray-500">Upload a policy document to get started.</p>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 };
 
@@ -1018,7 +1015,11 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/ask" element={<InquiryPage />} />
             <Route path="/history" element={<HistoryPage />} />
-            <Route path="/account" element={<AccountPage />} />
+            <Route path="/account" element={
+              <ProtectedRoute>
+                <AccountPage />
+              </ProtectedRoute>
+            } />
           </Routes>
         </BrowserRouter>
       </ThemeProvider>

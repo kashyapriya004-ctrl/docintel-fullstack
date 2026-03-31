@@ -18,10 +18,10 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   guestQueryCount: 0,
-  incrementGuestQueryCount: () => {},
-  resetGuestQueryCount: () => {},
-  login: () => {},
-  logout: () => {},
+  incrementGuestQueryCount: () => { },
+  resetGuestQueryCount: () => { },
+  login: () => { },
+  logout: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
