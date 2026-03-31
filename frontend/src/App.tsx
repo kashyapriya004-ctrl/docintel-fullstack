@@ -249,12 +249,20 @@ const LandingPage = () => (
 const LoginPage = () => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('Researcher');
+  
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleAuth = (e: React.FormEvent) => {
     e.preventDefault();
-    login({ name: 'Guest Scholar', email: 'scholar@docintel.ai', role: 'Researcher' });
+    login({ 
+      name: name || (activeTab === 'signin' ? 'Verified Scholar' : 'New User'), 
+      email: email || 'scholar@docintel.ai', 
+      role: role 
+    });
     navigate('/ask');
   };
   
@@ -287,6 +295,8 @@ const LoginPage = () => {
               <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@university.edu" 
                 className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
               />
@@ -324,6 +334,8 @@ const LoginPage = () => {
               <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Full Name</label>
               <input 
                 type="text" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Dr. Jane Doe" 
                 className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
               />
@@ -332,12 +344,16 @@ const LoginPage = () => {
             <div>
               <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Role</label>
               <div className="relative">
-                <select className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm appearance-none">
+                <select 
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm appearance-none"
+                >
                   <option value="">Select your role</option>
-                  <option value="student">Student</option>
-                  <option value="researcher">Researcher</option>
-                  <option value="faculty">Faculty</option>
-                  <option value="other">Other</option>
+                  <option value="Student">Student</option>
+                  <option value="Researcher">Researcher</option>
+                  <option value="Faculty">Faculty</option>
+                  <option value="Other">Other</option>
                 </select>
                 <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 rotate-90" size={18} />
               </div>
@@ -347,6 +363,8 @@ const LoginPage = () => {
               <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="university-style placeholder" 
                 className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
               />
