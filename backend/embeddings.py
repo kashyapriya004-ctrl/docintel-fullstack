@@ -1,17 +1,35 @@
+import os
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from google import genai
 
-# Load local embedding model
-model = SentenceTransformer('all-MiniLM-L6-v2')
+def _get_client():
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is missing.")
+    return genai.Client(api_key=api_key)
 
 def create_embeddings(chunks):
-    """Generate normalized embeddings for a list of text chunks."""
-    embeddings = model.encode(chunks, normalize_embeddings=True)
-    return embeddings
+    """Generate normalized embeddings for a list of text chunks using Gemini."""
+    if not chunks:
+        return np.array([])
+    client = _get_client()
+    result = client.models.embed_content(
+        model='gemini-embedding-2-preview',
+        contents=chunks,
+    )
+    return np.array([emb.values for emb in result.embeddings])
 
 def semantic_search(query, chunks, embeddings):
     """Find the top 5 most relevant chunks to a given query."""
-    query_embedding = model.encode([query], normalize_embeddings=True)[0]
+    if not chunks or len(embeddings) == 0:
+        return []
+        
+    client = _get_client()
+    query_result = client.models.embed_content(
+        model='gemini-embedding-2-preview',
+        contents=query,
+    )
+    query_embedding = np.array(query_result.embeddings[0].values)
     
     similarities = []
     for emb in embeddings:
