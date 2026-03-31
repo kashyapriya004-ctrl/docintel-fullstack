@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, ReactNode, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Search, 
@@ -32,8 +33,8 @@ import {
   Sun,
   Moon
 } from 'lucide-react';
-import { useState, useEffect, ReactNode, createContext, useContext } from 'react';
 import { generatePolicyResponse } from './services/gemini';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // --- Theme Context ---
 const ThemeContext = createContext<{ theme: 'light' | 'dark', toggleTheme: () => void }>({
@@ -248,9 +249,17 @@ const LandingPage = () => (
 const LoginPage = () => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    login({ name: 'Guest Scholar', email: 'scholar@docintel.ai', role: 'Researcher' });
+    navigate('/ask');
+  };
   
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')] bg-brand-bg dark:bg-dark-bg transition-colors duration-300">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-brand-bg dark:bg-dark-bg transition-colors duration-300">
       <div className="mb-12 text-center">
         <BookOpen className="w-12 h-12 text-brand-primary dark:text-dark-primary mx-auto mb-4" />
         <h1 className="text-3xl font-bold text-brand-primary dark:text-dark-primary italic">DocIntel AI</h1>
@@ -259,152 +268,131 @@ const LoginPage = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white dark:bg-dark-surface p-10 rounded-2xl shadow-2xl shadow-brand-primary/5 dark:shadow-dark-primary/5 border border-gray-100 dark:border-dark-border"
+        className="w-full max-w-md bg-white dark:bg-dark-surface p-10 rounded-2xl shadow-xl border border-brand-primary/10 dark:border-dark-border"
       >
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-serif mb-2 dark:text-dark-text">{activeTab === 'signin' ? 'Access Your Account' : 'Create account'}</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{activeTab === 'signin' ? 'Please authenticate to access the digital archives.' : 'Create your DocIntel account'}</p>
-        </div>
-
-        {/* Tab Toggle */}
-        <div className="flex p-1 bg-gray-100 dark:bg-dark-bg rounded-xl mb-8">
-          <button 
-            onClick={() => setActiveTab('signin')}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'signin' ? 'bg-white dark:bg-dark-surface text-brand-primary dark:text-dark-primary shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
-          >
-            Sign in
-          </button>
-          <button 
-            onClick={() => setActiveTab('signup')}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === 'signup' ? 'bg-brand-secondary dark:bg-dark-secondary text-white dark:text-dark-bg shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
-          >
-            New member
-          </button>
+          <h2 className="text-2xl font-serif mb-2 text-brand-primary dark:text-dark-text">
+            {activeTab === 'signin' ? 'Sign In to DocIntel' : 'Create Your DocIntel Account'}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {activeTab === 'signin' 
+              ? 'Continue exploring education policies.' 
+              : 'Join to unlock personalized AI research.'}
+          </p>
         </div>
         
         {activeTab === 'signin' ? (
-          <form className="space-y-6">
+          <form className="space-y-5" onSubmit={handleAuth}>
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Email</label>
-              <div className="relative">
-                <input 
-                  type="email" 
-                  placeholder="name@example.com" 
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
-                />
-                <Globe className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600" size={18} />
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">password</label>
-              </div>
-              <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="••••••••••••" 
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600 hover:text-brand-primary dark:hover:text-dark-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              <button type="button" className="text-[10px] font-bold uppercase tracking-widest text-brand-secondary dark:text-dark-secondary mt-2">Forgot password?</button>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <input type="checkbox" id="remember" className="w-4 h-4 rounded border-gray-300 dark:border-dark-border text-brand-primary dark:text-dark-primary focus:ring-brand-primary dark:focus:ring-dark-primary dark:bg-dark-bg" />
-              <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400">remember my password</label>
-            </div>
-            
-            <Link to="/ask" className="w-full flex items-center justify-center gap-2 py-4 bg-brand-secondary dark:bg-dark-secondary text-white dark:text-dark-bg font-bold rounded-lg hover:bg-opacity-90 transition-all">
-              Enter Portal <ArrowRight size={18} />
-            </Link>
-          </form>
-        ) : (
-          <form className="space-y-6">
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">FULL NAME</label>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
               <input 
-                type="text" 
-                placeholder="Your full name" 
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
+                type="email" 
+                placeholder="name@university.edu" 
+                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
               />
             </div>
             
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">ROLE</label>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Password</label>
               <div className="relative">
-                <select className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm appearance-none dark:text-dark-text">
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••••••" 
+                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 hover:text-brand-primary transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+            
+            <button type="submit" className="w-full flex items-center justify-center py-3.5 bg-brand-cta text-white font-bold rounded-lg hover:bg-opacity-90 transition-all mt-4">
+              Sign In
+            </button>
+            <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all">
+              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Continue with Google
+            </button>
+          </form>
+        ) : (
+          <form className="space-y-4" onSubmit={handleAuth}>
+            <div>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Full Name</label>
+              <input 
+                type="text" 
+                placeholder="Dr. Jane Doe" 
+                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Role</label>
+              <div className="relative">
+                <select className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm appearance-none">
                   <option value="">Select your role</option>
                   <option value="student">Student</option>
                   <option value="researcher">Researcher</option>
-                  <option value="educator">Educator</option>
-                  <option value="policy_maker">Policy Maker</option>
+                  <option value="faculty">Faculty</option>
+                  <option value="other">Other</option>
                 </select>
-                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600 rotate-90" size={18} />
+                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 rotate-90" size={18} />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">EMAIL</label>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Email</label>
               <input 
                 type="email" 
-                placeholder="you@university.edu.in" 
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
+                placeholder="university-style placeholder" 
+                className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">PASSWORD</label>
+              <label className="block text-xs font-bold text-brand-primary/70 dark:text-gray-400 mb-1">Password</label>
               <div className="relative">
                 <input 
                   type={showPassword ? "text" : "password"} 
                   placeholder="••••••••••••" 
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-dark-bg border border-gray-200 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary dark:focus:border-dark-primary transition-all text-sm dark:text-dark-text"
+                  className="w-full px-4 py-3 bg-brand-bg/50 dark:bg-dark-bg border border-brand-primary/20 dark:border-dark-border rounded-lg focus:outline-none focus:border-brand-primary transition-all text-sm"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600 hover:text-brand-primary dark:hover:text-dark-primary transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-primary/40 hover:text-brand-primary transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            <Link to="/ask" className="w-full flex items-center justify-center gap-2 py-4 bg-brand-secondary dark:bg-dark-secondary text-white dark:text-dark-bg font-bold rounded-lg hover:bg-opacity-90 transition-all">
-              Create account <ArrowRight size={18} />
-            </Link>
+            <button type="submit" className="w-full flex items-center justify-center py-3.5 bg-brand-cta text-white font-bold rounded-lg hover:bg-opacity-90 transition-all mt-4">
+              Create Account
+            </button>
+            <button type="button" className="w-full flex items-center justify-center gap-2 py-3.5 bg-white border border-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-50 transition-all">
+              <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Continue with Google
+            </button>
           </form>
         )}
         
-        <div className="mt-8 text-center">
+        <div className="mt-8 text-center pt-6 border-t border-brand-primary/10 dark:border-dark-border">
           <button 
             onClick={() => setActiveTab(activeTab === 'signin' ? 'signup' : 'signin')}
-            className="text-sm text-gray-500 hover:text-brand-primary dark:hover:text-dark-primary transition-colors"
+            className="text-sm text-gray-500 hover:text-brand-cta transition-colors"
           >
             {activeTab === 'signin' ? (
-              <>Don't have an account? <span className="font-bold text-brand-secondary dark:text-dark-secondary">Sign up →</span></>
+              <>New here? <span className="font-bold text-brand-primary">Create an account &rarr;</span></>
             ) : (
-              <>Already have an account? <span className="font-bold text-brand-secondary dark:text-dark-secondary">Sign in →</span></>
+              <>Already have an account? <span className="font-bold text-brand-primary">Sign in &rarr;</span></>
             )}
           </button>
         </div>
-
-        <p className="mt-12 text-center text-[11px] text-gray-400 dark:text-gray-500 italic leading-relaxed max-w-[280px] mx-auto">
-          "Intelligence consists not only in the knowledge but also in the skill to apply the knowledge to practice."
-        </p>
       </motion.div>
-      
-      <div className="fixed bottom-8 w-full px-8 flex justify-center items-center text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center">
-        <p></p>
-      </div>
     </div>
   );
 };
@@ -492,6 +480,8 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => {
 };
 
 const InquiryPage = () => {
+  const { user, guestQueryCount, incrementGuestQueryCount } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Hello Scholar \n\nI can help you understand Indian education policies and digital laws in a simple way.' }
   ]);
@@ -518,6 +508,11 @@ const InquiryPage = () => {
 
   const handleSend = async (text: string = input) => {
     if (!text.trim() || isLoading) return;
+
+    if (!user && guestQueryCount >= 3) {
+      setShowLoginModal(true);
+      return;
+    }
     
     const userMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
@@ -534,6 +529,7 @@ const InquiryPage = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: 'I apologize, Scholar. An error occurred while accessing the policy archives. Please try again later.' }]);
     } finally {
       setIsLoading(false);
+      if (!user) incrementGuestQueryCount();
     }
   };
 
@@ -545,9 +541,34 @@ const InquiryPage = () => {
 
   return (
     <DashboardLayout>
+      {showLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-brand-bg dark:bg-dark-surface w-full max-w-md p-8 rounded-3xl shadow-2xl text-center"
+          >
+            <h3 className="text-2xl font-serif text-brand-primary dark:text-dark-text mb-2">Continue with DocIntel</h3>
+            <p className="text-gray-500 mb-6 text-sm">You've reached the free query limit. Sign in to continue exploring education policies.</p>
+            <div className="flex flex-col gap-3">
+              <Link to="/login" className="py-3 bg-brand-cta text-white font-bold rounded-xl hover:opacity-90 transition-all">Sign In</Link>
+              <Link to="/login" className="py-3 bg-white text-brand-primary font-bold border border-brand-primary/20 rounded-xl hover:bg-gray-50 transition-all">Create Account</Link>
+              <div className="py-3 bg-white text-gray-700 font-bold border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Continue with Google
+              </div>
+            </div>
+            <button onClick={() => setShowLoginModal(false)} className="mt-4 text-sm text-gray-400 hover:text-gray-600 underline">Dismiss</button>
+          </motion.div>
+        </div>
+      )}
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-12">
           <h2 className="text-3xl font-serif text-brand-primary dark:text-dark-primary">Education Policy Assistant</h2>
+          {!user && (
+            <div className="text-sm font-bold text-brand-secondary/80 bg-brand-secondary/10 px-4 py-2 rounded-full border border-brand-secondary/20">
+              {3 - guestQueryCount} Guest Queries Remaining
+            </div>
+          )}
         </div>
         
         <div className="space-y-8 mb-12">
@@ -635,11 +656,13 @@ const InquiryPage = () => {
 };
 
 const AccountPage = () => {
+  const { user, logout } = useAuth();
+  
   const [userData, setUserData] = useState({
-    name: "Scholar Kashyap",
-    email: "kashyapriya004@gmail.com",
-    role: "Researcher",
-    institution: "Indian Institute of Technology",
+    name: user?.name || "Guest User",
+    email: user?.email || "guest@docintel.ai",
+    role: user?.role || "Guest",
+    institution: "Unknown",
     bio: "Passionate about education policy and digital transformation in India.",
     notifications: true,
     language: "English"
@@ -685,20 +708,25 @@ const AccountPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Profile Card */}
-          <div className="md:col-span-1">
-            <div className="bg-white dark:bg-dark-surface p-8 rounded-[2rem] border border-gray-100 dark:border-dark-border shadow-sm text-center">
+          <div className="md:col-span-1 flex flex-col gap-4">
+            <div className="bg-white dark:bg-dark-surface p-8 rounded-[2rem] border border-brand-primary/10 dark:border-dark-border shadow-sm text-center">
               <div className="w-24 h-24 rounded-full bg-brand-bg dark:bg-dark-bg border-4 border-brand-primary/10 dark:border-dark-primary/10 flex items-center justify-center text-brand-primary dark:text-dark-primary mx-auto mb-6">
                 <User size={48} />
               </div>
               <h3 className="text-xl font-bold text-brand-primary dark:text-dark-primary mb-1">{userData.name}</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{userData.role}</p>
-              <div className="pt-6 border-t border-gray-100 dark:border-dark-border">
+              <div className="pt-6 border-t border-brand-primary/10 dark:border-dark-border">
                 <div className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-brand-secondary dark:text-dark-secondary">
                   <Globe size={14} />
-                  Verified Scholar
+                  {user ? "Verified Scholar" : "Guest Account"}
                 </div>
               </div>
             </div>
+            {user && (
+              <button onClick={logout} className="w-full py-4 text-center font-bold text-brand-cta border border-brand-cta rounded-2xl hover:bg-brand-cta/10 transition-colors">
+                Sign Out
+              </button>
+            )}
           </div>
 
           {/* Details Form */}
@@ -930,16 +958,18 @@ const HistoryPage = () => {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/ask" element={<InquiryPage />} />
-          <Route path="/history" element={<HistoryPage />} />
-          <Route path="/account" element={<AccountPage />} />
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/ask" element={<InquiryPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/account" element={<AccountPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
