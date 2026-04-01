@@ -1,9 +1,6 @@
 export const generatePolicyResponse = async (prompt: string, history: { role: string, content: string }[]) => {
   try {
-    const API_URL = import.meta.env.VITE_API_URL || '';
-    const endpoint = `${API_URL}/api/ask`;
-    
-    const res = await fetch(endpoint, {
+    const res = await fetch('/api/ask', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,8 +22,7 @@ export const generatePolicyResponse = async (prompt: string, history: { role: st
 
 export const fetchHistory = async (user_id: number = 1) => {
   try {
-    const API_URL = import.meta.env.VITE_API_URL || '';
-    const res = await fetch(`${API_URL}/api/history?user_id=${user_id}`);
+    const res = await fetch(`/api/history?user_id=${user_id}`);
     if (!res.ok) throw new Error('Failed to fetch history');
     return await res.json();
   } catch (error) {
@@ -37,8 +33,7 @@ export const fetchHistory = async (user_id: number = 1) => {
 
 export const deleteHistory = async (history_id: number, user_id: number = 1) => {
   try {
-    const API_URL = import.meta.env.VITE_API_URL || '';
-    const res = await fetch(`${API_URL}/api/history/${history_id}?user_id=${user_id}`, {
+    const res = await fetch(`/api/history/${history_id}?user_id=${user_id}`, {
       method: 'DELETE'
     });
     if (!res.ok) throw new Error('Failed to delete history');
@@ -48,3 +43,4 @@ export const deleteHistory = async (history_id: number, user_id: number = 1) => 
     throw error;
   }
 };
+
