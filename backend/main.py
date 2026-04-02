@@ -48,7 +48,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
     new_user = models.User(
         email=user.email,
-        password=hashed_password
+        hashed_password=hashed_password
     )
 
     db.add(new_user)
@@ -66,7 +66,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     if not db_user:
         return {"error": "User not found"}
 
-    if not verify_password(user.password, db_user.password):
+    if not verify_password(user.password, db_user.hashed_password):
         return {"error": "Incorrect password"}
 
     token = create_token({"user_id": db_user.id})
