@@ -92,16 +92,29 @@ def ask_question(request: QuestionRequest, db: Session = Depends(get_db)):
         results = semantic_search(query, chunks, embeddings)
         final_answer = generate_answer(query, results)
 
-        # -------- SAVE HISTORY --------
-        new_entry = models.SearchHistory(
-            question=query,
-            answer=final_answer,
-            user_id=1   # TEMP (we fix later with JWT)
-        )
+        # -------- SAVE HISTORY (separate try — never fail the answer) --------
+        try:
+            # Only save if user actually exists in DB
+            user_id = request.user_id
+            user_exists = db.query(models.User).filter(models.User.id == user_id).first()
 
-        db.add(new_entry)
-        db.commit()
+            if user_exists:
+                new_entry = models.SearchHistory(
+                    question=query,
+                    answer=final_answer,
+                    user_id=user_id
+                )
+                db.add(new_entry)
+                db.commit()
+                print(f"[history] Saved for user_id={user_id}")
+            else:
+                print(f"[history] Skipped — user_id={user_id} not in DB (guest or invalid)")
 
+        except Exception as db_err:
+            print(f"[history] DB save failed (non-fatal): {db_err}")
+            db.rollback()
+
+        # Always return the answer regardless of history save result
         return {
             "question": query,
             "answer": final_answer
@@ -110,6 +123,7 @@ def ask_question(request: QuestionRequest, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"Error in ask_question: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Backend processing error: {str(e)}")
+
 
 
 # -------------------- GET LAST 10 HISTORY --------------------
