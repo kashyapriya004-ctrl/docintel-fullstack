@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, BookOpen, Globe, Brain, Zap, Users, Lock, ArrowRight } from "lucide-react";
+import { Search, BookOpen, Globe, Brain, Zap, Users, Lock, ArrowRight, Quote, ChevronDown, CheckCircle } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const features = [
   { icon: Globe, title: "Real-Time Retrieval", description: "Live data fetched from UGC, AICTE, and Ministry of Education websites." },
@@ -19,7 +19,41 @@ const steps = [
   { num: "03", title: "Get clear, sourced answer", desc: "Receive a simplified summary with direct links to the official PDF sources." },
 ];
 
-// Hook: triggers .visible class when element enters viewport
+const stats = [
+  { value: "3+", label: "Live Gov. Sources" },
+  { value: "Real‑time", label: "Policy Scraping" },
+  { value: "Gemini AI", label: "Powered Engine" },
+  { value: "Free", label: "to Try" },
+];
+
+const sources = [
+  { abbr: "UGC", name: "University Grants Commission", url: "https://www.ugc.gov.in" },
+  { abbr: "AICTE", name: "All India Council for Technical Education", url: "https://www.aicte-india.org" },
+  { abbr: "MoE", name: "Ministry of Education", url: "https://www.education.gov.in" },
+];
+
+const sampleQuestions = [
+  "What is NEP 2020 and its key reforms?",
+  "What are AICTE approval requirements for colleges?",
+  "How does UGC regulate deemed universities?",
+  "What are UGC NET eligibility criteria?",
+  "What is RUSA scheme and who benefits from it?",
+];
+
+const testimonials = [
+  { quote: "Finally I can understand NEP 2020 without reading 66 pages. This tool is a game changer for faculty.", name: "Prof. A. Mehta", role: "Principal, Engineering College, Pune" },
+  { quote: "I used DocIntel to check PhD regulations and affiliation norms. The answers are accurate and sourced.", name: "Dr. R. Krishnan", role: "Research Fellow, IIT Delhi" },
+  { quote: "As a student navigating college applications, this helped me understand AICTE rules instantly.", name: "Priya S.", role: "UG Student, Delhi University" },
+];
+
+const faqs = [
+  { q: "Where does DocIntel get its information?", a: "DocIntel scrapes live data from official government websites — UGC, AICTE, and the Ministry of Education — every time you ask a question. No stale PDFs." },
+  { q: "How accurate are the answers?", a: "Answers are generated using Retrieval-Augmented Generation (RAG), which grounds every response in actual policy text. Each answer includes a direct source link for verification." },
+  { q: "Is my data private?", a: "Yes. Guest queries are not stored. Logged-in users can review their history, but queries are never shared with third parties." },
+  { q: "How long does a query take?", a: "Typically 30–90 seconds. This is because we fetch live data from government sites on every query, not cached results." },
+  { q: "Can I use this without an account?", a: "Yes — guests get 3 free queries. Create a free account for unlimited searches and query history." },
+];
+
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -27,7 +61,7 @@ function useScrollReveal() {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { el.classList.add("visible"); obs.disconnect(); } },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -35,9 +69,31 @@ function useScrollReveal() {
   return ref;
 }
 
+const FAQItem = ({ q, a }: { q: string; a: string }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-b border-border last:border-0">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-5 text-left gap-4 group"
+      >
+        <span className="font-display font-semibold text-foreground text-base md:text-lg group-hover:text-primary transition-colors">{q}</span>
+        <ChevronDown className={`h-5 w-5 text-muted-foreground flex-shrink-0 transition-transform duration-300 ${open ? "rotate-180 text-accent" : ""}`} />
+      </button>
+      <div className={`overflow-hidden transition-all duration-400 ease-in-out ${open ? "max-h-48 pb-5" : "max-h-0"}`}>
+        <p className="text-muted-foreground font-sans text-sm leading-relaxed">{a}</p>
+      </div>
+    </div>
+  );
+};
+
 const Landing = () => {
   const featuresRef = useScrollReveal();
   const stepsRef = useScrollReveal();
+  const statsRef = useScrollReveal();
+  const sourcesRef = useScrollReveal();
+  const testimonialsRef = useScrollReveal();
+  const faqRef = useScrollReveal();
   const ctaRef = useScrollReveal();
 
   return (
@@ -45,40 +101,74 @@ const Landing = () => {
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden">
-        {/* Ambient light orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="orb orb-1" />
           <div className="orb orb-2" />
           <div className="orb orb-3" />
         </div>
-
         <div className="absolute inset-0 bg-cover bg-center opacity-15" style={{ backgroundImage: `url(${heroBg})` }} />
 
         <div className="relative container py-28 md:py-44 flex flex-col items-center text-center">
-          {/* Kicker — slide in from top */}
           <p className="kicker-text mb-4 hero-kicker">Policy Intelligence System</p>
-
-          {/* Heading — fade & scale */}
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-primary leading-tight max-w-4xl hero-heading">
             Instant Answers from India's{" "}
             <span className="accent-italic animated-underline">Education Policies</span>
           </h1>
-
-          {/* Subtitle */}
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl font-body hero-subtitle">
             Every policy that shapes your academic life lives inside documents most people never finish reading.
             DocIntel reads them all — and answers your question in seconds.
           </p>
-
-          {/* CTA */}
-          <div className="mt-10 flex gap-4 hero-cta">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center hero-cta">
             <Button asChild size="lg" className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold px-8 gap-2 btn-lift">
               <Link to="/search">
                 <Search className="h-4 w-4" />
-                Start Searching
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                Start Searching Free
+                <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
+            <Link to="/login" className="text-sm text-muted-foreground hover:text-primary transition-colors font-sans underline-offset-4 hover:underline">
+              Sign in for history →
+            </Link>
+          </div>
+          <p className="mt-5 text-xs text-muted-foreground font-sans hero-cta flex items-center gap-4 flex-wrap justify-center" style={{ animationDelay: "0.75s" }}>
+            {["No credit card needed", "3 free guest queries", "Instant sourced answers"].map(t => (
+              <span key={t} className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" />{t}</span>
+            ))}
+          </p>
+        </div>
+      </section>
+
+      {/* ── STATS BAR ── */}
+      <section className="border-y border-border bg-secondary/30 py-10">
+        <div className="container reveal-section" ref={statsRef}>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {stats.map((s) => (
+              <div key={s.label}>
+                <p className="font-display text-2xl md:text-3xl font-bold text-primary mb-1">{s.value}</p>
+                <p className="text-xs text-muted-foreground font-sans uppercase tracking-wider">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRUSTED SOURCES ── */}
+      <section className="py-16 border-b border-border">
+        <div className="container reveal-section" ref={sourcesRef}>
+          <p className="kicker-text text-center mb-10">Data sourced directly from</p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+            {sources.map((src) => (
+              <a
+                key={src.abbr}
+                href={src.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col items-center gap-2 hover:opacity-70 transition-opacity"
+              >
+                <span className="font-display text-3xl font-bold text-primary group-hover:text-accent transition-colors">{src.abbr}</span>
+                <span className="text-xs text-muted-foreground font-sans text-center max-w-[180px]">{src.name}</span>
+              </a>
+            ))}
           </div>
         </div>
       </section>
@@ -114,6 +204,7 @@ const Landing = () => {
       <section className="bg-secondary/40 py-20 md:py-28">
         <div className="container">
           <div className="text-center mb-16 reveal-section" ref={stepsRef}>
+            <p className="kicker-text mb-3">Process</p>
             <h2 className="font-display text-3xl md:text-5xl font-bold text-primary italic">
               The Research <span className="accent-italic">Journey</span>
             </h2>
@@ -136,9 +227,78 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* ── SAMPLE QUESTIONS ── */}
+      <section className="py-20 md:py-28 border-b border-border">
+        <div className="container max-w-3xl text-center reveal-section" ref={useScrollReveal()}>
+          <p className="kicker-text mb-3">What you can ask</p>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-10">
+            Questions <span className="accent-italic">DocIntel</span> can answer
+          </h2>
+          <div className="space-y-3">
+            {sampleQuestions.map((q, i) => (
+              <Link
+                key={q}
+                to="/search"
+                className="sample-q-item flex items-center justify-between px-5 py-4 border border-border rounded-lg bg-card hover:border-accent/40 hover:bg-secondary/40 transition-all group"
+                style={{ animationDelay: `${i * 0.08}s` }}
+              >
+                <span className="font-body text-sm text-foreground text-left">{q}</span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all flex-shrink-0 ml-3" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── TESTIMONIALS ── */}
+      <section className="py-20 md:py-28 bg-secondary/20">
+        <div className="container reveal-section" ref={testimonialsRef}>
+          <div className="text-center mb-14">
+            <p className="kicker-text mb-3">Trusted by researchers</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
+              What people <span className="accent-italic">say</span>
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <div
+                key={t.name}
+                className="testimonial-card bg-card border border-border rounded-lg p-8"
+                style={{ animationDelay: `${i * 0.12}s` }}
+              >
+                <Quote className="h-6 w-6 text-accent/50 mb-4" />
+                <p className="font-body text-foreground text-sm leading-relaxed mb-6 italic">"{t.quote}"</p>
+                <div>
+                  <p className="font-sans font-semibold text-foreground text-sm">{t.name}</p>
+                  <p className="text-muted-foreground text-xs font-sans mt-0.5">{t.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="py-20 md:py-28 border-t border-border">
+        <div className="container max-w-2xl reveal-section" ref={faqRef}>
+          <div className="text-center mb-12">
+            <p className="kicker-text mb-3">FAQ</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
+              Common <span className="accent-italic">questions</span>
+            </h2>
+          </div>
+          <div className="bg-card border border-border rounded-lg px-6">
+            {faqs.map((faq) => (
+              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
-      <section className="py-20 md:py-28">
+      <section className="py-20 md:py-28 bg-secondary/30">
         <div className="container text-center reveal-section" ref={ctaRef}>
+          <p className="kicker-text mb-4">Get started today</p>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
             Ready to simplify your policy research?
           </h2>
@@ -146,7 +306,7 @@ const Landing = () => {
             Start asking questions and let DocIntel AI illuminate the answers hidden in government documents.
           </p>
           <Button asChild size="lg" className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold px-10 btn-lift">
-            <Link to="/search">Start Your First Search</Link>
+            <Link to="/search">Start Your First Search →</Link>
           </Button>
         </div>
       </section>

@@ -215,6 +215,28 @@
 }
 
 /* ═══════════════════════════════════════
+   TESTIMONIAL CARDS
+═══════════════════════════════════════ */
+.testimonial-card {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-slide-up 0.6s ease forwards;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px hsla(20, 15%, 20%, 0.09);
+}
+
+/* ═══════════════════════════════════════
+   SAMPLE QUESTION ITEMS
+═══════════════════════════════════════ */
+.sample-q-item {
+  opacity: 0;
+  animation: fade-slide-up 0.5s ease forwards;
+}
+
+/* ═══════════════════════════════════════
    AMBIENT LIGHT ORBS
 ═══════════════════════════════════════ */
 @keyframes float-1 {
