@@ -35,12 +35,12 @@ const Landing = () => (
 
     {/* ────────── HERO ────────── */}
     <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0f1f0f] via-[#1a2e1a] to-[#0d1a0d]" />
-      {/* Glowing orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-emerald-500/10 blur-[120px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-amber-500/10 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-teal-500/5 blur-[80px]" />
+      {/* Dark neutral background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0f1117] via-[#14181f] to-[#0c0f14]" />
+      {/* Subtle orbs */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-500/8 blur-[120px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-slate-400/5 blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full bg-blue-500/5 blur-[80px]" />
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -50,8 +50,8 @@ const Landing = () => (
 
       <div className="relative z-10 container text-center px-6">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 text-xs font-semibold uppercase tracking-widest mb-8 backdrop-blur-sm">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 text-gray-300 text-xs font-semibold uppercase tracking-widest mb-8 backdrop-blur-sm">
+          <div className="w-1.5 h-1.5 rounded-full bg-gray-300 animate-ping" />
           Live Policy Intelligence
         </div>
 
@@ -191,18 +191,18 @@ const Landing = () => (
 
     {/* ────────── CTA ────────── */}
     <section className="py-24 md:py-32 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900" />
-      <div className="absolute inset-0 opacity-10" style={{
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0f1117] via-[#14181f] to-[#0c0f14]" />
+      <div className="absolute inset-0 opacity-[0.04]" style={{
         backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
         backgroundSize: "32px 32px"
       }} />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-emerald-400/10 blur-[100px]" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full bg-indigo-500/5 blur-[100px]" />
 
       <div className="relative z-10 container px-6 text-center">
         <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
           Stop guessing.
           <br />
-          <span className="text-emerald-300">Start knowing.</span>
+          <span className="text-slate-300">Start knowing.</span>
         </h2>
         <p className="text-gray-300 max-w-lg mx-auto mb-10 text-lg">
           Ask any question about India's education policies and get an instant, accurate, sourced answer.
@@ -210,7 +210,7 @@ const Landing = () => (
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
           <Link to="/search">
-            <button className="group flex items-center gap-3 px-10 py-4 rounded-xl bg-white text-emerald-900 font-bold text-base hover:bg-gray-100 transition-all duration-300 shadow-xl hover:scale-[1.02]">
+            <button className="group flex items-center gap-3 px-10 py-4 rounded-xl bg-white text-gray-900 font-bold text-base hover:bg-gray-100 transition-all duration-300 shadow-xl hover:scale-[1.02]">
               <Search className="h-5 w-5" />
               Try for Free
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
