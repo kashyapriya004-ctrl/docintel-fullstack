@@ -7,14 +7,17 @@ HEADERS = {
 }
 
 # Specific known policy pages — fetched in parallel, not crawled
+# Prioritise pages with actual policy text, not navigation/admin pages
 POLICY_URLS = {
-    "NEP_2020_MOE":     "https://www.education.gov.in/nep/about-nep",
-    "MOE_Home":         "https://www.education.gov.in/en",
-    "UGC_Home":         "https://www.ugc.gov.in/",
-    "UGC_Guidelines":   "https://www.ugc.gov.in/pdfnews/3631340_UGC-Guidelines.pdf",
-    "UGC_NET":          "https://www.ugc.gov.in/ugcnet",
-    "AICTE_Home":       "https://www.aicte-india.org/",
-    "AICTE_Approval":   "https://www.aicte-india.org/bureau/approval-process",
+    "NEP_2020_About":     "https://www.education.gov.in/nep/about-nep",
+    "NEP_2020_Highlights":"https://www.education.gov.in/hi/nep2020",
+    "MOE_Schemes":        "https://www.education.gov.in/school-education",
+    "UGC_About":          "https://www.ugc.gov.in/about-ugc",
+    "UGC_Functions":      "https://www.ugc.gov.in/functions",
+    "UGC_NET":            "https://www.ugc.gov.in/ugcnet",
+    "AICTE_About":        "https://www.aicte-india.org/about/aicte",
+    "AICTE_Approval":     "https://www.aicte-india.org/bureau/approval-process",
+    "AICTE_Functions":    "https://www.aicte-india.org/about/functions",
 }
 
 TIMEOUT_PER_URL = 8  # seconds — strict per-URL timeout
