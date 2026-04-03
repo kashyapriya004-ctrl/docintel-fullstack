@@ -250,33 +250,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
-      <section className="py-20 md:py-28 bg-secondary/20">
-        <div className="container reveal-section" ref={testimonialsRef}>
-          <div className="text-center mb-14">
-            <p className="kicker-text mb-3">Trusted by researchers</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
-              What people <span className="accent-italic">say</span>
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((t, i) => (
-              <div
-                key={t.name}
-                className="testimonial-card bg-card border border-border rounded-lg p-8"
-                style={{ animationDelay: `${i * 0.12}s` }}
-              >
-                <Quote className="h-6 w-6 text-accent/50 mb-4" />
-                <p className="font-body text-foreground text-sm leading-relaxed mb-6 italic">"{t.quote}"</p>
-                <div>
-                  <p className="font-sans font-semibold text-foreground text-sm">{t.name}</p>
-                  <p className="text-muted-foreground text-xs font-sans mt-0.5">{t.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── FAQ ── */}
       <section className="py-20 md:py-28 border-t border-border">
