@@ -237,6 +237,17 @@
 }
 
 /* ═══════════════════════════════════════
+   POLICY FAQ TOPIC CARDS
+═══════════════════════════════════════ */
+.policy-faq-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.policy-faq-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px hsla(20, 15%, 20%, 0.08);
+}
+
+/* ═══════════════════════════════════════
    AMBIENT LIGHT ORBS
 ═══════════════════════════════════════ */
 @keyframes float-1 {

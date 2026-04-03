@@ -52,6 +52,38 @@ const faqs = [
   { q: "Is my data private?", a: "Yes. Guest queries are not stored. Logged-in users can review their history, but queries are never shared with third parties." },
   { q: "How long does a query take?", a: "Typically 30–90 seconds. This is because we fetch live data from government sites on every query, not cached results." },
   { q: "Can I use this without an account?", a: "Yes — guests get 3 free queries. Create a free account for unlimited searches and query history." },
+  { q: "What languages does DocIntel support?", a: "Currently English only. Multilingual support including Hindi is on our roadmap based on MoE's NEP language guidelines." },
+  { q: "Can DocIntel read PDFs directly?", a: "Not yet — DocIntel reads the text content of government web pages. PDF support is planned for a future update." },
+];
+
+const policyFaqs = [
+  {
+    category: "UGC",
+    color: "text-primary",
+    items: [
+      { q: "What is UGC's role in higher education?", a: "The University Grants Commission (UGC) coordinates and maintains the standards of university education in India. It grants recognition to universities, disburses scholarships, and frames academic regulations." },
+      { q: "What is UGC NET?", a: "UGC NET (National Eligibility Test) is a national-level exam to determine eligibility for Assistant Professor posts and Junior Research Fellowships (JRF) in Indian universities and colleges." },
+      { q: "How does UGC regulate deemed universities?", a: "Deemed universities require UGC approval under Section 3 of the UGC Act. They must meet defined infrastructure, faculty, and research criteria and are periodically reviewed for compliance." },
+    ],
+  },
+  {
+    category: "AICTE",
+    color: "text-accent",
+    items: [
+      { q: "What institutions need AICTE approval?", a: "All technical institutions offering programmes like Engineering, Technology, Architecture, MBA, MCA, and Pharmacy at diploma and degree level (except IITs/NITs) need AICTE approval." },
+      { q: "What are AICTE's faculty qualification norms?", a: "For engineering, faculty must hold at least a BE/BTech + ME/MTech or PhD. AICTE specifies minimum qualifications by discipline in its Approval Process Handbook." },
+      { q: "How often does AICTE renew institutional approvals?", a: "AICTE approvals are renewed annually. Institutions must submit compliance reports each academic year and meet prescribed student-teacher ratios and infrastructure standards." },
+    ],
+  },
+  {
+    category: "NEP 2020",
+    color: "text-[hsl(var(--navy))]",
+    items: [
+      { q: "What is the 5+3+3+4 structure in NEP 2020?", a: "NEP 2020 restructures school education into four stages: Foundational (5 years), Preparatory (3 years), Middle (3 years), and Secondary (4 years) — replacing the old 10+2 system." },
+      { q: "What does NEP say about mother tongue instruction?", a: "NEP 2020 recommends the medium of instruction up to Grade 5 (preferably Grade 8) be the home language or regional language, while maintaining multilingual approaches throughout education." },
+      { q: "How does NEP 2020 change higher education?", a: "NEP introduces a 4-year, multidisciplinary undergraduate programme with multiple exit options and a credit-based framework. It also proposes a common Higher Education Regulator replacing UGC, AICTE, and NCTE." },
+    ],
+  },
 ];
 
 function useScrollReveal() {
@@ -251,7 +283,7 @@ const Landing = () => {
       </section>
 
 
-      {/* ── FAQ ── */}
+      {/* ── FAQ — General (accordion) ── */}
       <section className="py-20 md:py-28 border-t border-border">
         <div className="container max-w-2xl reveal-section" ref={faqRef}>
           <div className="text-center mb-12">
@@ -263,6 +295,45 @@ const Landing = () => {
           <div className="bg-card border border-border rounded-lg px-6">
             {faqs.map((faq) => (
               <FAQItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ — Policy Topics (card grid) ── */}
+      <section className="py-20 md:py-28 bg-secondary/20 border-t border-border">
+        <div className="container reveal-section" ref={useScrollReveal()}>
+          <div className="text-center mb-14">
+            <p className="kicker-text mb-3">Policy Knowledge Base</p>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
+              Answers by <span className="accent-italic">topic</span>
+            </h2>
+            <p className="mt-3 text-muted-foreground font-sans text-sm max-w-xl mx-auto">
+              Quick answers to the most-searched policy questions across UGC, AICTE, and NEP 2020.
+            </p>
+          </div>
+
+          <div className="space-y-12">
+            {policyFaqs.map((group) => (
+              <div key={group.category}>
+                {/* Category header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <span className={`font-display text-xl font-bold ${group.color}`}>{group.category}</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                {/* Q&A cards */}
+                <div className="grid md:grid-cols-3 gap-5">
+                  {group.items.map((item) => (
+                    <div
+                      key={item.q}
+                      className="policy-faq-card bg-card border border-border rounded-lg p-6 hover:border-accent/30 transition-all"
+                    >
+                      <p className="font-display font-semibold text-foreground text-sm mb-3 leading-snug">{item.q}</p>
+                      <p className="text-muted-foreground font-sans text-xs leading-relaxed">{item.a}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
