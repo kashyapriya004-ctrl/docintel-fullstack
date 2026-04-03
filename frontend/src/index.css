@@ -97,3 +97,58 @@
     text-wrap: balance;
   }
 }
+
+/* ── Ambient light orb animations ── */
+@keyframes float-1 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  33%  { transform: translate(40px, -30px) scale(1.05); }
+  66%  { transform: translate(-20px, 20px) scale(0.97); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes float-2 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  40%  { transform: translate(-50px, 30px) scale(1.08); }
+  70%  { transform: translate(30px, -20px) scale(0.96); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes float-3 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  50%  { transform: translate(25px, 40px) scale(1.04); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.orb-1 {
+  width: 520px;
+  height: 520px;
+  top: -100px;
+  left: -80px;
+  background: radial-gradient(circle, hsla(30, 60%, 80%, 0.18) 0%, transparent 70%);
+  animation: float-1 16s ease-in-out infinite;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  top: 40%;
+  right: -60px;
+  background: radial-gradient(circle, hsla(36, 55%, 72%, 0.14) 0%, transparent 70%);
+  animation: float-2 20s ease-in-out infinite;
+}
+
+.orb-3 {
+  width: 350px;
+  height: 350px;
+  bottom: 0;
+  left: 40%;
+  background: radial-gradient(circle, hsla(145, 30%, 65%, 0.10) 0%, transparent 70%);
+  animation: float-3 14s ease-in-out infinite;
+}

@@ -22,6 +22,12 @@ const Landing = () => (
   <div className="flex flex-col">
     {/* Hero */}
     <section className="relative overflow-hidden">
+      {/* Subtle ambient light orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="orb orb-1" />
+        <div className="orb orb-2" />
+        <div className="orb orb-3" />
+      </div>
       <div className="absolute inset-0 bg-cover bg-center opacity-15" style={{ backgroundImage: `url(${heroBg})` }} />
       <div className="relative container py-24 md:py-40 flex flex-col items-center text-center">
         <p className="kicker-text mb-4 animate-fade-in-up">Policy Intelligence System</p>
