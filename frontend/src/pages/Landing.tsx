@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Search, BookOpen, Globe, Brain, Shield, Zap, Users, Lock, ArrowRight, CheckCircle, Star } from "lucide-react";
 
 const features = [
-  { icon: Globe, title: "Real-Time Retrieval", description: "Live data fetched from UGC, AICTE, and Ministry of Education websites every time you ask.", color: "from-emerald-500 to-teal-600" },
-  { icon: Brain, title: "RAG-Powered Analysis", description: "Retrieval-Augmented Generation ensures accurate, source-grounded responses from real policy text.", color: "from-violet-500 to-purple-600" },
-  { icon: Zap, title: "Always Up-to-Date", description: "Policies are scraped in real-time so you never work with outdated or stale information.", color: "from-amber-500 to-orange-600" },
-  { icon: BookOpen, title: "Source Citations", description: "Every answer links directly to the original policy document or official PDF source.", color: "from-rose-500 to-pink-600" },
-  { icon: Users, title: "Built for Everyone", description: "Students, faculty, researchers, and administrators can query in plain, everyday English.", color: "from-sky-500 to-blue-600" },
-  { icon: Lock, title: "Trustworthy & Secure", description: "Your queries are private. We never share your data with third parties.", color: "from-green-500 to-emerald-600" },
+  { icon: Globe, title: "Real-Time Retrieval", description: "Fetches live data from UGC, AICTE, and Ministry of Education on every query." },
+  { icon: Brain, title: "RAG-Powered Analysis", description: "Retrieval-Augmented Generation grounds every answer in actual policy text." },
+  { icon: Zap, title: "Always Current", description: "No stale cached documents. Policies are scraped fresh at query time." },
+  { icon: BookOpen, title: "Source Citations", description: "Every response links to the original government PDF or circular." },
+  { icon: Users, title: "Built for Everyone", description: "Ask in everyday English — no need for circular numbers or legal jargon." },
+  { icon: Lock, title: "Trustworthy & Secure", description: "Your queries are never shared or stored without your explicit consent." },
 ];
 
 const steps = [
@@ -118,7 +118,7 @@ const Landing = () => (
               style={{ animationDelay: `${i * 0.08}s` }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity blur-2xl" />
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${f.color} mb-5 shadow-lg`}>
+              <div className="inline-flex p-3 rounded-xl bg-gray-900 mb-5">
                 <f.icon className="h-6 w-6 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
