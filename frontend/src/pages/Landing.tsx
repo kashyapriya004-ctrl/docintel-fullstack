@@ -259,29 +259,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── SAMPLE QUESTIONS ── */}
-      <section className="py-20 md:py-28 border-b border-border">
-        <div className="container max-w-3xl text-center reveal-section" ref={useScrollReveal()}>
-          <p className="kicker-text mb-3">What you can ask</p>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-10">
-            Questions <span className="accent-italic">DocIntel</span> can answer
-          </h2>
-          <div className="space-y-3">
-            {sampleQuestions.map((q, i) => (
-              <Link
-                key={q}
-                to="/search"
-                className="sample-q-item flex items-center justify-between px-5 py-4 border border-border rounded-lg bg-card hover:border-accent/40 hover:bg-secondary/40 transition-all group"
-                style={{ animationDelay: `${i * 0.08}s` }}
-              >
-                <span className="font-body text-sm text-foreground text-left">{q}</span>
-                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all flex-shrink-0 ml-3" />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
 
       {/* ── FAQ — General (accordion) ── */}
       <section className="py-20 md:py-28 border-t border-border">
