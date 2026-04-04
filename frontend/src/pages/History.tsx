@@ -4,7 +4,9 @@ import { Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
-import { fetchHistory, deleteHistory } from "@/services/gemini";
+
+const HISTORY_KEY = "docintel-history";
+
 
 type HistoryEntry = {
   id: string;
@@ -26,25 +28,26 @@ const History = () => {
       navigate("/login");
       return;
     }
-    fetchHistory()
-      .then(data => setHistory(data))
-      .catch(err => console.error("Failed to fetch history:", err));
+    // Read from localStorage — this is where Search.tsx writes every query
+    try {
+      const stored = localStorage.getItem(HISTORY_KEY);
+      setHistory(stored ? JSON.parse(stored) : []);
+    } catch {
+      setHistory([]);
+    }
   }, [isAuthenticated, navigate]);
 
-  const deleteEntry = async (id: string) => {
-    try {
-      await deleteHistory(Number(id));
-      const updated = history.filter((e) => e.id !== id);
-      setHistory(updated);
-    } catch(err) {
-      console.error("Failed to delete", err);
-    }
+  const deleteEntry = (id: string) => {
+    const updated = history.filter((e) => e.id !== id);
+    setHistory(updated);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
   };
 
   const clearHistory = () => {
-    localStorage.removeItem("docintel-history");
+    localStorage.removeItem(HISTORY_KEY);
     setHistory([]);
   };
+
 
   if (!isAuthenticated) return null;
 

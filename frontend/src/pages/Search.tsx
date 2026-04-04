@@ -65,18 +65,22 @@ const Search = () => {
       ],
     };
 
-    // Save to history only if authenticated
-    if (isAuthenticated) {
-      const history = JSON.parse(localStorage.getItem("docintel-history") || "[]");
-      history.unshift({
+    // Save to localStorage for all users (History page reads from here)
+    // Only skip saving if the answer is an error message
+    const isError = answer.startsWith("Error:") || answer.startsWith("Could not reach") || answer.startsWith("The request timed out");
+    if (!isError) {
+      const stored = JSON.parse(localStorage.getItem("docintel-history") || "[]");
+      stored.unshift({
         id: Date.now().toString(),
         question: queryText,
         answer: response.answer,
         sources: response.sources,
         timestamp: new Date().toISOString(),
       });
-      localStorage.setItem("docintel-history", JSON.stringify(history.slice(0, 50)));
-    } else {
+      localStorage.setItem("docintel-history", JSON.stringify(stored.slice(0, 50)));
+    }
+
+    if (!isAuthenticated) {
       incrementGuestQuery();
     }
 
