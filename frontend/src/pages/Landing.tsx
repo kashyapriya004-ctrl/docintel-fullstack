@@ -263,24 +263,6 @@ const Landing = () => {
         </div>
       </section>
 
-
-      {/* ── FAQ — General (accordion) ── */}
-      <section className="py-20 md:py-28 border-t border-border">
-        <div className="container max-w-2xl reveal-section" ref={faqRef}>
-          <div className="text-center mb-12">
-            <p className="kicker-text mb-3">FAQ</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
-              Common <span className="accent-italic">questions</span>
-            </h2>
-          </div>
-          <div className="bg-card border border-border rounded-lg px-6">
-            {faqs.map((faq) => (
-              <FAQItem key={faq.q} q={faq.q} a={faq.a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CTA ── */}
       <section className="py-20 md:py-28 bg-secondary/30">
         <div className="container text-center reveal-section" ref={ctaRef}>
