@@ -277,45 +277,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── FAQ — Policy Topics (card grid) ── */}
-      <section className="py-20 md:py-28 bg-secondary/20 border-t border-border">
-        <div className="container reveal-section" ref={useScrollReveal()}>
-          <div className="text-center mb-14">
-            <p className="kicker-text mb-3">Policy Knowledge Base</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
-              Answers by <span className="accent-italic">topic</span>
-            </h2>
-            <p className="mt-3 text-muted-foreground font-sans text-sm max-w-xl mx-auto">
-              Quick answers to the most-searched policy questions across UGC, AICTE, and NEP 2020.
-            </p>
-          </div>
-
-          <div className="space-y-12">
-            {policyFaqs.map((group) => (
-              <div key={group.category}>
-                {/* Category header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <span className={`font-display text-xl font-bold ${group.color}`}>{group.category}</span>
-                  <div className="flex-1 h-px bg-border" />
-                </div>
-                {/* Q&A cards */}
-                <div className="grid md:grid-cols-3 gap-5">
-                  {group.items.map((item) => (
-                    <div
-                      key={item.q}
-                      className="policy-faq-card bg-card border border-border rounded-lg p-6 hover:border-accent/30 transition-all"
-                    >
-                      <p className="font-display font-semibold text-foreground text-sm mb-3 leading-snug">{item.q}</p>
-                      <p className="text-muted-foreground font-sans text-xs leading-relaxed">{item.a}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CTA ── */}
       <section className="py-20 md:py-28 bg-secondary/30">
         <div className="container text-center reveal-section" ref={ctaRef}>
