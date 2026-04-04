@@ -12,6 +12,7 @@ const Navbar = () => {
   const links = [
     { to: "/", label: "Home" },
     { to: "/search", label: "Search" },
+    { to: "/faq", label: "FAQ" },
     ...(isAuthenticated ? [{ to: "/history", label: "History" }] : []),
   ];
 

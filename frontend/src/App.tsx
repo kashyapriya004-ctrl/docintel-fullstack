@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
+import FAQPage from "./pages/FAQ";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -45,6 +46,7 @@ const App = () => (
                     <Account />
                   </ProtectedRoute>
                 } />
+                <Route path="/faq" element={<FAQPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
