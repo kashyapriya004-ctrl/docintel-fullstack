@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Loader2, BookOpen, Sparkles, ExternalLink } from "lucide-react";
@@ -11,6 +11,23 @@ type SearchResult = {
   answer: string;
   sources: string[];
 };
+
+const LoadingState = () => {
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setSecs(s => s + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const msg = secs < 10 ? "Contacting backend..." : secs < 40 ? "Fetching live policy data..." : "Generating sourced answer...";
+  return (
+    <div className="mt-10 flex flex-col items-center gap-3">
+      <BookOpen className="h-10 w-10 text-accent animate-bounce" />
+      <p className="text-muted-foreground font-sans text-sm">{msg}</p>
+      <p className="text-xs text-muted-foreground/60 font-sans">{secs}s elapsed · typically 30–90s</p>
+    </div>
+  );
+};
+
 
 const SAMPLE_QUESTIONS = [
   "What is the NEP 2020 policy on multilingual education?",
@@ -144,12 +161,7 @@ const Search = () => {
       )}
 
       {/* Loading */}
-      {isLoading && (
-        <div className="mt-10 flex flex-col items-center gap-3 animate-pulse-gentle">
-          <BookOpen className="h-10 w-10 text-accent" />
-          <p className="text-muted-foreground font-sans text-sm">Searching policy documents...</p>
-        </div>
-      )}
+      {isLoading && <LoadingState />}
 
       {/* Answer */}
       {result && (
