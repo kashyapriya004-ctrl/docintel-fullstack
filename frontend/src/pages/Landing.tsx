@@ -47,44 +47,48 @@ const testimonials = [
 ];
 
 const faqs = [
-  { q: "Where does DocIntel get its information?", a: "DocIntel scrapes live data from official government websites — UGC, AICTE, and the Ministry of Education — every time you ask a question. No stale PDFs." },
-  { q: "How accurate are the answers?", a: "Answers are generated using Retrieval-Augmented Generation (RAG), which grounds every response in actual policy text. Each answer includes a direct source link for verification." },
-  { q: "Is my data private?", a: "Yes. Guest queries are not stored. Logged-in users can review their history, but queries are never shared with third parties." },
-  { q: "How long does a query take?", a: "Typically 30–90 seconds. This is because we fetch live data from government sites on every query, not cached results." },
-  { q: "Can I use this without an account?", a: "Yes — guests get 3 free queries. Create a free account for unlimited searches and query history." },
-  { q: "What languages does DocIntel support?", a: "Currently English only. Multilingual support including Hindi is on our roadmap based on MoE's NEP language guidelines." },
-  { q: "Can DocIntel read PDFs directly?", a: "Not yet — DocIntel reads the text content of government web pages. PDF support is planned for a future update." },
+  {
+    q: "Where does DocIntel get its information?",
+    a: "DocIntel fetches live data directly from official government websites — UGC (ugc.gov.in), AICTE (aicte-india.org), and the Ministry of Education (education.gov.in) — every time you submit a query. No pre-cached PDFs or stale documents are used.",
+  },
+  {
+    q: "How accurate are the answers?",
+    a: "Answers are generated using Retrieval-Augmented Generation (RAG), which means the AI reads actual policy text sourced from government pages before composing a response. Every answer includes a direct source URL so you can independently verify the information.",
+  },
+  {
+    q: "Is my data private?",
+    a: "Yes. Guest queries are not stored on our servers at all. For logged-in users, your query history is saved to your account only, and is never shared with third parties or used to train AI models.",
+  },
+  {
+    q: "How long does a query take?",
+    a: "Typically 30–90 seconds per query. This is because DocIntel fetches live data from government websites in real time on every request — rather than serving cached results — which ensures freshness but takes slightly longer than a standard search engine.",
+  },
+  {
+    q: "Can I use this without an account?",
+    a: "Yes — guests receive 3 free queries with no sign-up required. Create a free account for unlimited searches, saved query history, and a personalised experience.",
+  },
+  {
+    q: "What types of questions can I ask?",
+    a: "You can ask about any policy, regulation, circular, or guideline governed by UGC, AICTE, or the Ministry of Education. Examples include: eligibility criteria for UGC NET, AICTE approval norms for colleges, NEP 2020 provisions, scholarship guidelines, affiliation rules, and more.",
+  },
+  {
+    q: "Does DocIntel cover state-level education policies?",
+    a: "Currently, DocIntel focuses on central government education bodies — UGC, AICTE, and the Ministry of Education. State-level policies (e.g., Maharashtra's higher education department) are not yet covered but are on our roadmap.",
+  },
+  {
+    q: "How often is the document database updated?",
+    a: "There is no static database — DocIntel scrapes the source websites live on every query. This means you always get the most current information available on the official government portal at the time of your search.",
+  },
+  {
+    q: "Can I download or share answers?",
+    a: "You can copy any answer text directly from the screen. A one-click copy and PDF export feature is planned for a future update. Logged-in users can also revisit past answers from their History page.",
+  },
+  {
+    q: "What if the answer seems incorrect or outdated?",
+    a: "Each answer includes a source link to the original government page. We recommend cross-checking the source directly. If you believe there is an error in how DocIntel is retrieving or interpreting the data, please use the feedback option so we can investigate and fix it.",
+  },
 ];
 
-const policyFaqs = [
-  {
-    category: "UGC",
-    color: "text-primary",
-    items: [
-      { q: "What is UGC's role in higher education?", a: "The University Grants Commission (UGC) coordinates and maintains the standards of university education in India. It grants recognition to universities, disburses scholarships, and frames academic regulations." },
-      { q: "What is UGC NET?", a: "UGC NET (National Eligibility Test) is a national-level exam to determine eligibility for Assistant Professor posts and Junior Research Fellowships (JRF) in Indian universities and colleges." },
-      { q: "How does UGC regulate deemed universities?", a: "Deemed universities require UGC approval under Section 3 of the UGC Act. They must meet defined infrastructure, faculty, and research criteria and are periodically reviewed for compliance." },
-    ],
-  },
-  {
-    category: "AICTE",
-    color: "text-accent",
-    items: [
-      { q: "What institutions need AICTE approval?", a: "All technical institutions offering programmes like Engineering, Technology, Architecture, MBA, MCA, and Pharmacy at diploma and degree level (except IITs/NITs) need AICTE approval." },
-      { q: "What are AICTE's faculty qualification norms?", a: "For engineering, faculty must hold at least a BE/BTech + ME/MTech or PhD. AICTE specifies minimum qualifications by discipline in its Approval Process Handbook." },
-      { q: "How often does AICTE renew institutional approvals?", a: "AICTE approvals are renewed annually. Institutions must submit compliance reports each academic year and meet prescribed student-teacher ratios and infrastructure standards." },
-    ],
-  },
-  {
-    category: "NEP 2020",
-    color: "text-[hsl(var(--navy))]",
-    items: [
-      { q: "What is the 5+3+3+4 structure in NEP 2020?", a: "NEP 2020 restructures school education into four stages: Foundational (5 years), Preparatory (3 years), Middle (3 years), and Secondary (4 years) — replacing the old 10+2 system." },
-      { q: "What does NEP say about mother tongue instruction?", a: "NEP 2020 recommends the medium of instruction up to Grade 5 (preferably Grade 8) be the home language or regional language, while maintaining multilingual approaches throughout education." },
-      { q: "How does NEP 2020 change higher education?", a: "NEP introduces a 4-year, multidisciplinary undergraduate programme with multiple exit options and a credit-based framework. It also proposes a common Higher Education Regulator replacing UGC, AICTE, and NCTE." },
-    ],
-  },
-];
 
 function useScrollReveal() {
   const ref = useRef<HTMLDivElement>(null);

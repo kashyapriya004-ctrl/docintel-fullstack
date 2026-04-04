@@ -10,12 +10,46 @@ const faqCategories = [
     label: "General",
     icon: HelpCircle,
     faqs: [
-      { q: "Where does DocIntel get its information?", a: "DocIntel scrapes live data from official government websites — UGC, AICTE, and the Ministry of Education — every time you ask a question. There are no stale cached PDFs. Every response is grounded in the most current version of the policy page." },
-      { q: "How accurate are the answers?", a: "Answers are generated using Retrieval-Augmented Generation (RAG). This means the AI reads the actual policy text fetched from government sites before generating a response. Every answer includes a direct source link so you can verify the information yourself." },
-      { q: "How long does a query take?", a: "Typically 30–90 seconds, depending on how many government pages are live-fetched. This is longer than a regular search engine because we retrieve real-time data rather than pre-cached results. A progress indicator keeps you informed while you wait." },
-      { q: "What languages does DocIntel support?", a: "Currently English only. Multilingual support including Hindi is on our roadmap, guided by MoE's NEP language policy, which recommends regional language instruction and access." },
-      { q: "Can DocIntel read PDFs directly?", a: "Not yet — DocIntel reads the text content of official government web pages. PDF parsing is planned as a future update. When available, it will allow querying circulars, gazette notifications, and annual reports in PDF format." },
-      { q: "What happens if the government website changes its structure?", a: "Our scraper is built to handle minor layout changes, but significant restructuring of a government portal may temporarily affect retrieval quality. We monitor for such changes and update the fetcher accordingly." },
+      {
+        q: "Where does DocIntel get its information?",
+        a: "DocIntel fetches live data directly from official government websites — UGC (ugc.gov.in), AICTE (aicte-india.org), and the Ministry of Education (education.gov.in) — every time you submit a query. No pre-cached PDFs or stale documents are used.",
+      },
+      {
+        q: "How accurate are the answers?",
+        a: "Answers are generated using Retrieval-Augmented Generation (RAG), which means the AI reads actual policy text sourced from government pages before composing a response. Every answer includes a direct source URL so you can independently verify the information.",
+      },
+      {
+        q: "Is my data private?",
+        a: "Yes. Guest queries are not stored on our servers at all. For logged-in users, your query history is saved to your account only, and is never shared with third parties or used to train AI models.",
+      },
+      {
+        q: "How long does a query take?",
+        a: "Typically 30–90 seconds per query. This is because DocIntel fetches live data from government websites in real time on every request — rather than serving cached results — which ensures freshness but takes slightly longer than a standard search engine.",
+      },
+      {
+        q: "Can I use this without an account?",
+        a: "Yes — guests receive 3 free queries with no sign-up required. Create a free account for unlimited searches, saved query history, and a personalised experience.",
+      },
+      {
+        q: "What types of questions can I ask?",
+        a: "You can ask about any policy, regulation, circular, or guideline governed by UGC, AICTE, or the Ministry of Education. Examples include: eligibility criteria for UGC NET, AICTE approval norms for colleges, NEP 2020 provisions, scholarship guidelines, affiliation rules, and more.",
+      },
+      {
+        q: "Does DocIntel cover state-level education policies?",
+        a: "Currently, DocIntel focuses on central government education bodies — UGC, AICTE, and the Ministry of Education. State-level policies (e.g., Maharashtra's higher education department) are not yet covered but are on our roadmap.",
+      },
+      {
+        q: "How often is the document database updated?",
+        a: "There is no static database — DocIntel scrapes the source websites live on every query. This means you always get the most current information available on the official government portal at the time of your search.",
+      },
+      {
+        q: "Can I download or share answers?",
+        a: "You can copy any answer text directly from the screen. A one-click copy and PDF export feature is planned for a future update. Logged-in users can also revisit past answers from their History page.",
+      },
+      {
+        q: "What if the answer seems incorrect or outdated?",
+        a: "Each answer includes a source link to the original government page. We recommend cross-checking the source directly. If you believe there is an error in how DocIntel is retrieving or interpreting the data, please use the feedback option so we can investigate and fix it.",
+      },
     ],
   },
   {
