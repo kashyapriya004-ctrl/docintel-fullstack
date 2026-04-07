@@ -21,21 +21,24 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        {/* Logo */}
+        <Link to="/" className="nav-logo flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-sienna" />
           <span className="font-display text-xl font-bold text-primary">
             DocIntel <span className="accent-italic">AI</span>
           </span>
         </Link>
 
-        {/* Desktop */}
+        {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
           {links.map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className={`font-sans text-sm font-medium transition-colors hover:text-primary ${
-                isActive(link.to) ? "text-primary border-b-2 border-sienna pb-0.5" : "text-muted-foreground"
+              className={`relative font-sans text-sm font-medium transition-colors hover:text-primary pb-0.5 ${
+                isActive(link.to)
+                  ? "text-primary nav-link-active"
+                  : "text-muted-foreground"
               }`}
             >
               {link.label}
@@ -46,7 +49,7 @@ const Navbar = () => {
         {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
-            <Button asChild variant="ghost" size="sm" className="font-sans gap-2">
+            <Button asChild variant="ghost" size="sm" className="font-sans gap-2 hover:bg-secondary transition-colors">
               <Link to="/account">
                 <User className="h-4 w-4" />
                 {user?.fullName?.split(" ")[0]}
@@ -60,7 +63,11 @@ const Navbar = () => {
                   Login
                 </Link>
               </Button>
-              <Button asChild size="sm" className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold">
+              <Button
+                asChild
+                size="sm"
+                className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold btn-lift"
+              >
                 <Link to="/signup">Get Started</Link>
               </Button>
             </>
@@ -68,39 +75,67 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden text-primary" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button
+          className="md:hidden text-primary p-2 rounded-md hover:bg-secondary transition-colors"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? (
+            <X className="h-5 w-5" style={{ animation: "scale-in 0.2s ease forwards" }} />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </button>
       </div>
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t bg-background px-4 pb-4">
-          {links.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMobileOpen(false)}
-              className={`block py-3 font-sans text-sm font-medium ${
-                isActive(link.to) ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="border-t pt-3 mt-2 flex flex-col gap-2">
+        <div className="mobile-menu md:hidden border-t bg-background px-4 pb-5">
+          <div className="pt-2">
+            {links.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center py-3 font-sans text-sm font-medium border-b border-border/40 last:border-0 ${
+                  isActive(link.to) ? "text-primary" : "text-muted-foreground hover:text-primary"
+                } transition-colors`}
+              >
+                {isActive(link.to) && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-sienna mr-2.5" />
+                )}
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className="pt-4 flex flex-col gap-2">
             {isAuthenticated ? (
-              <Link to="/account" onClick={() => setMobileOpen(false)} className="py-2 font-sans text-sm text-primary font-medium">
+              <Link
+                to="/account"
+                onClick={() => setMobileOpen(false)}
+                className="py-2 font-sans text-sm text-primary font-medium flex items-center gap-2"
+              >
+                <User className="h-4 w-4" />
                 Account
               </Link>
             ) : (
               <>
-                <Link to="/login" onClick={() => setMobileOpen(false)} className="py-2 font-sans text-sm text-muted-foreground">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="py-2 font-sans text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
                   Login
                 </Link>
-                <Link to="/signup" onClick={() => setMobileOpen(false)} className="py-2 font-sans text-sm text-primary font-medium">
-                  Get Started
-                </Link>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold btn-lift"
+                >
+                  <Link to="/signup" onClick={() => setMobileOpen(false)}>
+                    Get Started
+                  </Link>
+                </Button>
               </>
             )}
           </div>

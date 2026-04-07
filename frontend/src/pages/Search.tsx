@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Loader2, BookOpen, Sparkles, ExternalLink } from "lucide-react";
+import { Send, Loader2, BookOpen, Sparkles, ExternalLink, Copy, CheckCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import GuestLimitModal from "@/components/GuestLimitModal";
 import { generatePolicyResponse } from "@/services/gemini";
@@ -12,22 +12,50 @@ type SearchResult = {
   sources: string[];
 };
 
+/* ── Animated loading bar ── */
+const LoadingBar = () => (
+  <div className="w-full overflow-hidden rounded-full bg-muted mt-4">
+    <div className="loader-bar w-full" />
+  </div>
+);
+
+/* ── Loading state with live timer ── */
 const LoadingState = () => {
   const [secs, setSecs] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setSecs(s => s + 1), 1000);
+    const t = setInterval(() => setSecs((s) => s + 1), 1000);
     return () => clearInterval(t);
   }, []);
-  const msg = secs < 10 ? "Contacting backend..." : secs < 40 ? "Fetching live policy data..." : "Generating sourced answer...";
+
+  const msgs = [
+    { max: 10, text: "Contacting backend..." },
+    { max: 40, text: "Fetching live policy data..." },
+    { max: Infinity, text: "Generating sourced answer..." },
+  ];
+  const msg = msgs.find((m) => secs < m.max)!.text;
+
   return (
-    <div className="mt-10 flex flex-col items-center gap-3">
-      <BookOpen className="h-10 w-10 text-accent animate-bounce" />
-      <p className="text-muted-foreground font-sans text-sm">{msg}</p>
+    <div className="mt-10 flex flex-col items-center gap-4 page-enter">
+      <div className="relative">
+        <BookOpen className="h-12 w-12 text-accent" />
+        {/* orbiting ring */}
+        <span className="absolute inset-0 rounded-full border-2 border-accent/30 animate-ping" />
+      </div>
+      <p className="text-muted-foreground font-sans text-sm font-medium">{msg}</p>
       <p className="text-xs text-muted-foreground/60 font-sans">{secs}s elapsed · typically 30–90s</p>
+      <LoadingBar />
+      <div className="flex gap-1.5 mt-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-1.5 h-1.5 rounded-full bg-accent/60"
+            style={{ animation: `typing-pulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
+          />
+        ))}
+      </div>
     </div>
   );
 };
-
 
 const SAMPLE_QUESTIONS = [
   "What is the NEP 2020 policy on multilingual education?",
@@ -41,6 +69,8 @@ const Search = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const handleAsk = async (q?: string) => {
     const queryText = q || question;
@@ -58,16 +88,18 @@ const Search = () => {
 
     const response: SearchResult = {
       question: queryText,
-      answer: answer,
+      answer,
       sources: [
         "https://www.ugc.gov.in/pdfnews/3631340_UGC-Guidelines.pdf",
         "https://www.aicte-india.org/bureau/approval-process",
       ],
     };
 
-    // Save to localStorage for all users (History page reads from here)
-    // Only skip saving if the answer is an error message
-    const isError = answer.startsWith("Error:") || answer.startsWith("Could not reach") || answer.startsWith("The request timed out");
+    const isError =
+      answer.startsWith("Error:") ||
+      answer.startsWith("Could not reach") ||
+      answer.startsWith("The request timed out");
+
     if (!isError) {
       const stored = JSON.parse(localStorage.getItem("docintel-history") || "[]");
       stored.unshift({
@@ -80,19 +112,27 @@ const Search = () => {
       localStorage.setItem("docintel-history", JSON.stringify(stored.slice(0, 50)));
     }
 
-    if (!isAuthenticated) {
-      incrementGuestQuery();
-    }
-
+    if (!isAuthenticated) incrementGuestQuery();
     setResult(response);
     setIsLoading(false);
     setQuestion("");
+
+    // Scroll to result smoothly
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  };
+
+  const handleCopy = () => {
+    if (!result) return;
+    navigator.clipboard.writeText(result.answer);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="container py-12 md:py-20 max-w-3xl">
+    <div className="container py-12 md:py-20 max-w-3xl page-enter">
       <GuestLimitModal open={showLimitModal} onClose={() => setShowLimitModal(false)} />
 
+      {/* Header */}
       <div className="text-center mb-10">
         <p className="kicker-text mb-2">Search Policies</p>
         <h1 className="font-display text-3xl md:text-4xl font-bold text-primary">
@@ -108,13 +148,13 @@ const Search = () => {
         </p>
       </div>
 
-      {/* Input */}
-      <div className="bg-card border rounded-lg p-6 shadow-sm">
+      {/* Input card */}
+      <div className="search-card bg-card border rounded-xl p-6 shadow-sm">
         <Textarea
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="e.g., What are the UGC guidelines for autonomous colleges?"
-          className="min-h-[100px] bg-background border-input font-body text-base resize-none"
+          className="min-h-[110px] bg-background border-input font-body text-base resize-none transition-all duration-200 focus:shadow-inner"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -122,11 +162,14 @@ const Search = () => {
             }
           }}
         />
-        <div className="flex justify-end mt-4">
+        <div className="flex items-center justify-between mt-4">
+          <span className="text-xs text-muted-foreground font-sans">
+            {question.length > 0 ? `${question.length} chars` : "Press Enter to send"}
+          </span>
           <Button
             onClick={() => handleAsk()}
             disabled={isLoading || !question.trim()}
-            className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2"
+            className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2 btn-lift"
           >
             {isLoading ? (
               <>
@@ -147,17 +190,18 @@ const Search = () => {
       {!result && !isLoading && (
         <div className="mt-8">
           <p className="text-sm font-sans text-muted-foreground mb-3 flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-gold" />
+            <Sparkles className="h-4 w-4 text-accent" />
             Try a sample question
           </p>
           <div className="flex flex-col gap-2">
-            {SAMPLE_QUESTIONS.map((sq) => (
+            {SAMPLE_QUESTIONS.map((sq, i) => (
               <button
                 key={sq}
                 onClick={() => { setQuestion(sq); handleAsk(sq); }}
-                className="text-left px-4 py-3 border rounded-md bg-background hover:bg-secondary transition-colors text-sm text-foreground font-sans"
+                className="sample-q-item text-left px-5 py-3.5 border rounded-lg bg-background text-sm text-foreground font-sans"
+                style={{ animationDelay: `${i * 0.08}s` }}
               >
-                {sq}
+                <span className="text-accent font-bold mr-2">→</span>{sq}
               </button>
             ))}
           </div>
@@ -169,42 +213,66 @@ const Search = () => {
 
       {/* Answer */}
       {result && (
-        <div className="mt-10 bg-card border rounded-lg p-8 animate-fade-in-up">
-          <p className="kicker-text mb-2">Your Question</p>
-          <p className="font-display text-lg font-semibold text-primary mb-6">{result.question}</p>
-          <div className="border-t pt-6">
+        <div ref={resultRef} className="mt-10 result-card bg-card border rounded-xl p-8 shadow-sm">
+          {/* Question header */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <p className="kicker-text mb-1">Your Question</p>
+              <p className="font-display text-lg font-semibold text-primary">{result.question}</p>
+            </div>
+            <button
+              onClick={handleCopy}
+              className="flex-shrink-0 p-2 rounded-md border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-primary"
+              title="Copy answer"
+            >
+              {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}
+            </button>
+          </div>
+
+          <div className="accent-line" />
+
+          <div>
             <p className="kicker-text mb-3">DocIntel Response</p>
             <div className="prose prose-sm max-w-none text-foreground font-body space-y-1">
               {result.answer.split("\n").map((line, i) => {
-                if (line.includes("Summary:") || line.includes("Key Points:")) {
+                if (line.includes("Summary:") || line.includes("Key Points:"))
                   return <h4 key={i} className="font-display font-semibold text-primary mt-4 mb-1">{line.replace(/[*]/g, "")}</h4>;
-                }
                 if (line.match(/^\d+\./)) return <p key={i} className="ml-4 mb-1">{line}</p>;
                 if (line.trim() === "") return <br key={i} />;
                 return <p key={i} className="mb-1">{line}</p>;
               })}
             </div>
+          </div>
 
-            {/* Sources */}
-            {result.sources.length > 0 && (
-              <div className="mt-6 pt-4 border-t">
-                <p className="kicker-text mb-2">Sources</p>
-                <div className="space-y-2">
-                  {result.sources.map((src, i) => (
-                    <a
-                      key={i}
-                      href={src}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors font-sans"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      {src}
-                    </a>
-                  ))}
-                </div>
+          {/* Sources */}
+          {result.sources.length > 0 && (
+            <div className="mt-6 pt-5 border-t">
+              <p className="kicker-text mb-3">Sources</p>
+              <div className="space-y-2">
+                {result.sources.map((src, i) => (
+                  <a
+                    key={i}
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors font-sans group"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
+                    <span className="underline underline-offset-4">{src}</span>
+                  </a>
+                ))}
               </div>
-            )}
+            </div>
+          )}
+
+          {/* Ask another */}
+          <div className="mt-6 pt-4 border-t text-right">
+            <button
+              onClick={() => { setResult(null); setQuestion(""); }}
+              className="text-sm font-sans text-muted-foreground hover:text-primary transition-colors"
+            >
+              ← Ask another question
+            </button>
           </div>
         </div>
       )}

@@ -110,8 +110,12 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96) translateY(16px); }
+  from { opacity: 0; transform: scale(0.94) translateY(20px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .hero-kicker {
@@ -120,15 +124,15 @@
 }
 .hero-heading {
   opacity: 0;
-  animation: scale-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.25s;
+  animation: scale-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.25s;
 }
 .hero-subtitle {
   opacity: 0;
-  animation: fade-slide-up 0.8s ease forwards 0.45s;
+  animation: fade-slide-up 0.8s ease forwards 0.5s;
 }
 .hero-cta {
   opacity: 0;
-  animation: fade-slide-up 0.8s ease forwards 0.65s;
+  animation: fade-slide-up 0.8s ease forwards 0.7s;
 }
 
 /* Animated underline on italic span */
@@ -141,77 +145,211 @@
   position: absolute;
   left: 0; bottom: -4px;
   width: 0; height: 2px;
-  background: hsl(var(--accent));
+  background: linear-gradient(90deg, hsl(var(--accent)), hsl(var(--gold)));
   border-radius: 2px;
-  animation: underline-grow 0.9s ease forwards 1.1s;
+  animation: underline-grow 1s cubic-bezier(0.22,1,0.36,1) forwards 1.2s;
 }
 @keyframes underline-grow {
   to { width: 100%; }
 }
 
 /* ═══════════════════════════════════════
-   SCROLL REVEAL
+   GRADIENT TEXT SHIMMER
+═══════════════════════════════════════ */
+.gradient-text {
+  background: linear-gradient(
+    120deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--accent)) 40%,
+    hsl(var(--gold)) 60%,
+    hsl(var(--primary)) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-text 4s linear infinite;
+}
+@keyframes shimmer-text {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* ═══════════════════════════════════════
+   PAGE TRANSITION
+═══════════════════════════════════════ */
+.page-enter {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fade-slide-up 0.5s ease forwards;
+}
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL — stagger support
 ═══════════════════════════════════════ */
 .reveal-section {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(36px);
+  transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .reveal-section.visible {
   opacity: 1;
   transform: translateY(0);
 }
 
+/* Child stagger helpers */
+.reveal-section.visible .stagger-1 { animation-delay: 0.05s; }
+.reveal-section.visible .stagger-2 { animation-delay: 0.10s; }
+.reveal-section.visible .stagger-3 { animation-delay: 0.15s; }
+
 /* ═══════════════════════════════════════
-   FEATURE CARDS
+   FEATURE CARDS — glassmorphism + glow
 ═══════════════════════════════════════ */
 .feature-card {
   opacity: 0;
-  transform: translateY(20px);
-  animation: fade-slide-up 0.6s ease forwards;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transform: translateY(28px) scale(0.98);
+  animation: card-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease,
+              background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, hsla(30,50%,95%,0.6) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.feature-card:hover::before {
+  opacity: 1;
 }
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 32px hsla(20, 15%, 20%, 0.1);
-  border-color: hsl(var(--accent) / 0.35);
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 20px 48px hsla(20, 15%, 20%, 0.12),
+              0 0 0 1px hsla(var(--accent), 0.2);
+  border-color: hsl(var(--accent) / 0.4);
+}
+@keyframes card-enter {
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Icon bounce on card hover */
 .icon-bounce {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .feature-card:hover .icon-bounce {
-  transform: translateY(-4px) scale(1.12);
+  transform: translateY(-6px) scale(1.15) rotate(-5deg);
 }
 
 /* ═══════════════════════════════════════
-   STEP CARDS
+   ICON GLOW RING  
+═══════════════════════════════════════ */
+.icon-glow-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-glow-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(var(--accent) / 0.18), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.feature-card:hover .icon-glow-wrap::after {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════
+   STEP CARDS — connector line
 ═══════════════════════════════════════ */
 .step-card {
   opacity: 0;
-  animation: fade-slide-up 0.6s ease forwards;
+  animation: fade-slide-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.3s ease;
+}
+.step-card:hover {
+  transform: translateY(-4px);
 }
 .step-circle {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              background 0.3s ease;
 }
 .step-card:hover .step-circle {
-  transform: scale(1.12);
-  box-shadow: 0 6px 20px hsla(var(--primary), 0.2);
+  transform: scale(1.15);
+  background: hsl(var(--primary));
+  box-shadow: 0 8px 28px hsla(var(--primary), 0.3);
+}
+.step-card:hover .step-number {
+  color: hsl(var(--primary-foreground));
 }
 
 /* ═══════════════════════════════════════
-   BUTTON LIFT
+   STATS — count-up visual shimmer
+═══════════════════════════════════════ */
+.stat-value {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.stat-value:hover {
+  transform: scale(1.1);
+  color: hsl(var(--accent));
+}
+
+/* ═══════════════════════════════════════
+   BUTTON LIFT — enhanced
 ═══════════════════════════════════════ */
 .btn-lift {
+  position: relative;
+  overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease !important;
 }
+.btn-lift::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.btn-lift:hover::after {
+  opacity: 1;
+}
 .btn-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px hsla(var(--sienna), 0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px hsla(var(--sienna), 0.35);
 }
 .btn-lift:active {
   transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════
+   RIPPLE EFFECT on buttons
+═══════════════════════════════════════ */
+@keyframes ripple {
+  to { transform: scale(4); opacity: 0; }
+}
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transform: scale(0);
+  animation: ripple 0.5s linear;
+  pointer-events: none;
 }
 
 /* ═══════════════════════════════════════
@@ -219,21 +357,176 @@
 ═══════════════════════════════════════ */
 .testimonial-card {
   opacity: 0;
-  transform: translateY(20px);
-  animation: fade-slide-up 0.6s ease forwards;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transform: translateY(24px);
+  animation: card-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .testimonial-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 28px hsla(20, 15%, 20%, 0.09);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px hsla(20, 15%, 20%, 0.11);
 }
 
 /* ═══════════════════════════════════════
-   SAMPLE QUESTION ITEMS
+   SAMPLE QUESTION CHIPS
 ═══════════════════════════════════════ */
 .sample-q-item {
   opacity: 0;
-  animation: fade-slide-up 0.5s ease forwards;
+  animation: fade-slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.sample-q-item:hover {
+  transform: translateX(6px);
+  border-color: hsl(var(--accent) / 0.5);
+  background: hsl(var(--secondary));
+  box-shadow: -3px 0 0 hsl(var(--accent));
+}
+
+/* ═══════════════════════════════════════
+   SEARCH INPUT — animated focus ring
+═══════════════════════════════════════ */
+.search-card {
+  transition: box-shadow 0.3s ease;
+}
+.search-card:focus-within {
+  box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2),
+              0 12px 40px hsla(20, 15%, 20%, 0.08);
+}
+
+/* ═══════════════════════════════════════
+   PULSING LOADER (Search page)
+═══════════════════════════════════════ */
+@keyframes pulse-bar {
+  0%   { transform: scaleX(0); opacity: 1; }
+  60%  { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+.loader-bar {
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--gold)));
+  transform-origin: left;
+  animation: pulse-bar 2s ease-in-out infinite;
+  border-radius: 2px;
+}
+
+@keyframes typing-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: hsl(var(--accent));
+  border-radius: 1px;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: typing-pulse 1s steps(1) infinite;
+}
+
+/* ═══════════════════════════════════════
+   RESULT CARD FADE-IN
+═══════════════════════════════════════ */
+@keyframes result-reveal {
+  from { opacity: 0; transform: translateY(20px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.result-card {
+  animation: result-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   HISTORY CARDS — staggered
+═══════════════════════════════════════ */
+.history-card {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fade-slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.history-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px hsla(20, 15%, 20%, 0.10);
+  border-color: hsl(var(--accent) / 0.3);
+}
+
+/* ═══════════════════════════════════════
+   EXPAND / COLLAPSE ANSWER
+═══════════════════════════════════════ */
+@keyframes expand-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.expand-answer {
+  animation: expand-down 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   NAVBAR — logo hover pulse + active pill
+═══════════════════════════════════════ */
+.nav-logo {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.nav-logo:hover {
+  transform: scale(1.04);
+}
+
+@keyframes nav-underline-in {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+.nav-link-active {
+  position: relative;
+}
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, hsl(var(--sienna)), hsl(var(--accent)));
+  border-radius: 2px;
+  animation: nav-underline-in 0.3s ease forwards;
+}
+
+/* Mobile menu slide */
+@keyframes slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mobile-menu {
+  animation: slide-down 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   LOGIN / SIGNUP FORM
+═══════════════════════════════════════ */
+.auth-card {
+  opacity: 0;
+  animation: scale-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards 0.15s;
+}
+
+.form-field {
+  transition: transform 0.2s ease;
+}
+.form-field:focus-within {
+  transform: scale(1.01);
+}
+
+/* ═══════════════════════════════════════
+   SKELETON SHIMMER
+═══════════════════════════════════════ */
+@keyframes skeleton-move {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    hsl(var(--muted)) 25%,
+    hsl(var(--secondary)) 50%,
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-move 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
 }
 
 /* ═══════════════════════════════════════
@@ -248,47 +541,156 @@
 }
 
 /* ═══════════════════════════════════════
-   AMBIENT LIGHT ORBS
+   FAQ ACCORDION — smooth open
+═══════════════════════════════════════ */
+.faq-answer {
+  transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.3s ease,
+              padding 0.3s ease;
+}
+
+/* ═══════════════════════════════════════
+   AMBIENT LIGHT ORBS — enhanced
 ═══════════════════════════════════════ */
 @keyframes float-1 {
-  0%   { transform: translate(0px, 0px) scale(1); }
-  33%  { transform: translate(40px, -30px) scale(1.05); }
-  66%  { transform: translate(-20px, 20px) scale(0.97); }
-  100% { transform: translate(0px, 0px) scale(1); }
+  0%   { transform: translate(0px, 0px) scale(1) rotate(0deg); }
+  25%  { transform: translate(50px, -35px) scale(1.06) rotate(3deg); }
+  60%  { transform: translate(-25px, 25px) scale(0.97) rotate(-2deg); }
+  100% { transform: translate(0px, 0px) scale(1) rotate(0deg); }
 }
 @keyframes float-2 {
   0%   { transform: translate(0px, 0px) scale(1); }
-  40%  { transform: translate(-50px, 30px) scale(1.08); }
-  70%  { transform: translate(30px, -20px) scale(0.96); }
+  40%  { transform: translate(-55px, 35px) scale(1.09); }
+  70%  { transform: translate(35px, -25px) scale(0.95); }
   100% { transform: translate(0px, 0px) scale(1); }
 }
 @keyframes float-3 {
   0%   { transform: translate(0px, 0px) scale(1); }
-  50%  { transform: translate(25px, 40px) scale(1.04); }
+  50%  { transform: translate(30px, 45px) scale(1.05); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+@keyframes float-4 {
+  0%   { transform: translate(0px, 0px) scale(1); }
+  35%  { transform: translate(-40px, -50px) scale(1.07); }
+  75%  { transform: translate(20px, 30px) scale(0.96); }
   100% { transform: translate(0px, 0px) scale(1); }
 }
 
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
+  filter: blur(90px);
   pointer-events: none;
 }
 .orb-1 {
-  width: 520px; height: 520px;
-  top: -100px; left: -80px;
-  background: radial-gradient(circle, hsla(30, 60%, 80%, 0.18) 0%, transparent 70%);
-  animation: float-1 16s ease-in-out infinite;
+  width: 560px; height: 560px;
+  top: -120px; left: -100px;
+  background: radial-gradient(circle, hsla(30, 65%, 78%, 0.22) 0%, transparent 70%);
+  animation: float-1 18s ease-in-out infinite;
 }
 .orb-2 {
-  width: 400px; height: 400px;
-  top: 40%; right: -60px;
-  background: radial-gradient(circle, hsla(36, 55%, 72%, 0.14) 0%, transparent 70%);
-  animation: float-2 20s ease-in-out infinite;
+  width: 420px; height: 420px;
+  top: 40%; right: -80px;
+  background: radial-gradient(circle, hsla(36, 55%, 70%, 0.18) 0%, transparent 70%);
+  animation: float-2 22s ease-in-out infinite;
 }
 .orb-3 {
-  width: 350px; height: 350px;
-  bottom: 0; left: 40%;
-  background: radial-gradient(circle, hsla(145, 30%, 65%, 0.10) 0%, transparent 70%);
-  animation: float-3 14s ease-in-out infinite;
+  width: 380px; height: 380px;
+  bottom: 0; left: 38%;
+  background: radial-gradient(circle, hsla(145, 30%, 62%, 0.14) 0%, transparent 70%);
+  animation: float-3 15s ease-in-out infinite;
+}
+.orb-4 {
+  width: 300px; height: 300px;
+  top: 20%; left: 30%;
+  background: radial-gradient(circle, hsla(15, 60%, 65%, 0.10) 0%, transparent 70%);
+  animation: float-4 20s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════
+   PARTICLE DOTS BACKGROUND
+═══════════════════════════════════════ */
+@keyframes particle-drift {
+  0%   { transform: translateY(0px) translateX(0px); opacity: 0.4; }
+  50%  { transform: translateY(-20px) translateX(10px); opacity: 0.7; }
+  100% { transform: translateY(0px) translateX(0px); opacity: 0.4; }
+}
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: hsl(var(--accent) / 0.3);
+  pointer-events: none;
+  animation: particle-drift linear infinite;
+}
+
+/* ═══════════════════════════════════════
+   SOURCE LOGOS — pulse on hover
+═══════════════════════════════════════ */
+.source-logo {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              color 0.2s ease;
+}
+.source-logo:hover {
+  transform: scale(1.1) translateY(-4px);
+}
+
+/* ═══════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════ */
+#scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--gold)));
+  z-index: 9999;
+  transition: width 0.1s linear;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ═══════════════════════════════════════
+   GLOW BADGE (kicker label)
+═══════════════════════════════════════ */
+.glow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+  border: 1px solid hsl(var(--gold) / 0.4);
+  background: hsl(var(--gold) / 0.08);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: hsl(var(--gold));
+  animation: fade-in 0.6s ease forwards 0.15s;
+  opacity: 0;
+}
+.glow-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: hsl(var(--gold));
+  animation: typing-pulse 1.5s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════
+   ACCENT LINE / DIVIDER
+═══════════════════════════════════════ */
+.accent-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(var(--accent) / 0.5), transparent);
+  margin: 2rem 0;
+}
+
+/* ═══════════════════════════════════════
+   ANIMATE FADE IN UP (utility)
+═══════════════════════════════════════ */
+@keyframes animate-fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: animate-fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

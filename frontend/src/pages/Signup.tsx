@@ -31,36 +31,39 @@ const Signup = () => {
   };
 
   return (
-    <div className="container py-16 md:py-24 max-w-md">
+    <div className="container py-16 md:py-24 max-w-md page-enter">
       <div className="text-center mb-8">
         <p className="kicker-text mb-2">Get Started</p>
         <h1 className="font-display text-3xl md:text-4xl font-bold text-primary">
           Create Your <span className="accent-italic">DocIntel</span> Account
         </h1>
+        <p className="mt-2 text-sm text-muted-foreground font-sans">
+          Unlock unlimited queries and search history.
+        </p>
       </div>
 
-      <div className="bg-card border rounded-lg p-8 shadow-sm">
+      <div className="auth-card bg-card border rounded-xl p-8 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-destructive/10 text-destructive text-sm rounded-md p-3 font-sans">
+            <div className="bg-destructive/10 text-destructive text-sm rounded-lg p-3 font-sans border border-destructive/20 animate-fade-in-up">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
+          <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Full Name</label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" className="pl-10" required />
+              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" className="pl-10 transition-all duration-200" required />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Role</label>
             <div className="relative">
               <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
               <Select value={role} onValueChange={setRole}>
-                <SelectTrigger className="pl-10">
+                <SelectTrigger className="pl-10 transition-all duration-200">
                   <SelectValue placeholder="Select your role" />
                 </SelectTrigger>
                 <SelectContent>
@@ -73,32 +76,38 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="pl-10" required />
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="pl-10 transition-all duration-200" required />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Password</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="pl-10" required minLength={6} />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="pl-10 transition-all duration-200" required minLength={6} />
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2">
+          <Button type="submit" disabled={loading} className="w-full bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2 btn-lift">
             <UserPlus className="h-4 w-4" />
-            {loading ? "Creating account..." : "Create Account"}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                Creating account<span className="typing-cursor" />
+              </span>
+            ) : (
+              "Create Account"
+            )}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground font-sans">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to="/login" className="text-primary font-medium hover:underline underline-offset-4 transition-colors">
               Sign in →
             </Link>
           </p>
