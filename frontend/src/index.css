@@ -694,3 +694,253 @@
 .animate-fade-in-up {
   animation: animate-fade-in-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+
+/* ═══════════════════════════════════════
+   TYPING EFFECT
+═══════════════════════════════════════ */
+@keyframes blink-caret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typing-caret {
+  display: inline-block;
+  width: 3px;
+  height: 1.1em;
+  background: hsl(var(--accent));
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+/* ═══════════════════════════════════════
+   FLOATING ICONS (hero decorations)
+═══════════════════════════════════════ */
+@keyframes float-icon-1 {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  50%  { transform: translateY(-20px) rotate(5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes float-icon-2 {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  50%  { transform: translateY(-15px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes float-icon-3 {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  50%  { transform: translateY(-25px) rotate(8deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+.floating-icon {
+  position: absolute;
+  opacity: 0.15;
+  pointer-events: none;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+.floating-icon-1 { animation: float-icon-1 6s ease-in-out infinite; }
+.floating-icon-2 { animation: float-icon-2 7s ease-in-out infinite 1s; }
+.floating-icon-3 { animation: float-icon-3 8s ease-in-out infinite 0.5s; }
+.floating-icon-4 { animation: float-icon-1 5s ease-in-out infinite 2s; }
+
+/* ═══════════════════════════════════════
+   SPARKLE / TWINKLE EFFECT
+═══════════════════════════════════════ */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.sparkle {
+  position: absolute;
+  pointer-events: none;
+}
+.sparkle::before,
+.sparkle::after {
+  content: '';
+  position: absolute;
+  background: hsl(var(--gold));
+}
+.sparkle::before {
+  width: 2px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.sparkle::after {
+  width: 100%;
+  height: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.sparkle-anim {
+  animation: sparkle 2s ease-in-out infinite;
+}
+.twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════
+   PARALLAX HERO
+═══════════════════════════════════════ */
+.parallax-bg {
+  will-change: transform;
+  transition: transform 0.1s ease-out;
+}
+
+/* ═══════════════════════════════════════
+   BUTTON MAGNETIC EFFECT
+═══════════════════════════════════════ */
+.magnetic-btn {
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══════════════════════════════════════
+   CROWDED PARTICLES CANVAS
+═══════════════════════════════════════ */
+#particles-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════
+   GLOWING PULSE EFFECT
+═══════════════════════════════════════ */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 5px hsl(var(--accent) / 0.3), 0 0 15px hsl(var(--accent) / 0.1); }
+  50% { box-shadow: 0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.2); }
+}
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════
+   TEXT REVEAL (word by word)
+═══════════════════════════════════════ */
+@keyframes word-reveal {
+  from { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.word-reveal span {
+  display: inline-block;
+  opacity: 0;
+  animation: word-reveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   SEARCH SUCCESS CONFETTI
+═══════════════════════════════════════ */
+@keyframes confetti-fall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confetti-fall 3s ease-in forwards;
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ═══════════════════════════════════════
+   RIPPLE CLICK EFFECT
+═══════════════════════════════════════ */
+.ripple-container {
+  position: relative;
+  overflow: hidden;
+}
+@keyframes ripple-expand {
+  0% { transform: scale(0); opacity: 0.6; }
+  100% { transform: scale(4); opacity: 0; }
+}
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(0);
+  animation: ripple-expand 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════
+   SMOOTH SCROLL
+═══════════════════════════════════════ */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ═══════════════════════════════════════
+   CARD 3D TILT EFFECT
+═══════════════════════════════════════ */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+.tilt-card:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-5px);
+}
+
+/* ═══════════════════════════════════════
+   BOUNCE IN
+═══════════════════════════════════════ */
+@keyframes bounce-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.bounce-in {
+  animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   SHAKE ANIMATION (for errors)
+═══════════════════════════════════════ */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* ═══════════════════════════════════════
+   SLIDE IN FROM SIDES
+═══════════════════════════════════════ */
+@keyframes slide-from-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-from-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.slide-from-left {
+  animation: slide-from-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.slide-from-right {
+  animation: slide-from-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ═══════════════════════════════════════
+   INFINITE MARQUEE
+═══════════════════════════════════════ */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}

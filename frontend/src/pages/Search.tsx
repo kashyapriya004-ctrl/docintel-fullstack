@@ -12,6 +12,42 @@ type SearchResult = {
   sources: string[];
 };
 
+/* ── Confetti Effect ── */
+const Confetti = () => {
+  const [pieces, setPieces] = useState<{ id: number; left: number; color: string; delay: number; size: number }[]>([]);
+  useEffect(() => {
+    const colors = ["hsl(var(--sienna))", "hsl(var(--accent))", "hsl(var(--gold))", "hsl(var(--primary))", "hsl(var(--olive))"];
+    const newPieces = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: Math.random() * 0.5,
+      size: Math.random() * 8 + 6,
+    }));
+    setPieces(newPieces);
+    const timer = setTimeout(() => setPieces([]), 4000);
+    return () => clearTimeout(timer);
+  }, []);
+  return (
+    <>
+      {pieces.map((p) => (
+        <div
+          key={p.id}
+          className="confetti-piece"
+          style={{
+            left: `${p.left}%`,
+            background: p.color,
+            animationDelay: `${p.delay}s`,
+            width: p.size,
+            height: p.size,
+            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+          }}
+        />
+      ))}
+    </>
+  );
+};
+
 /* ── Animated loading bar ── */
 const LoadingBar = () => (
   <div className="w-full overflow-hidden rounded-full bg-muted mt-4">
@@ -70,6 +106,7 @@ const Search = () => {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   const handleAsk = async (q?: string) => {
@@ -110,6 +147,7 @@ const Search = () => {
         timestamp: new Date().toISOString(),
       });
       localStorage.setItem("docintel-history", JSON.stringify(stored.slice(0, 50)));
+      setShowConfetti(true);
     }
 
     if (!isAuthenticated) incrementGuestQuery();
@@ -130,6 +168,7 @@ const Search = () => {
 
   return (
     <div className="container py-12 md:py-20 max-w-3xl page-enter">
+      {showConfetti && <Confetti />}
       <GuestLimitModal open={showLimitModal} onClose={() => setShowLimitModal(false)} />
 
       {/* Header */}
@@ -213,16 +252,19 @@ const Search = () => {
 
       {/* Answer */}
       {result && (
-        <div ref={resultRef} className="mt-10 result-card bg-card border rounded-xl p-8 shadow-sm">
+        <div ref={resultRef} className="mt-10 result-card bg-card border rounded-xl p-8 shadow-sm tilt-card">
+          {/* Top accent gradient */}
+          <div className="h-1.5 -mx-8 -mt-8 mb-6 rounded-t-xl bg-gradient-to-r from-primary via-accent to-gold" />
+          
           {/* Question header */}
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
               <p className="kicker-text mb-1">Your Question</p>
-              <p className="font-display text-lg font-semibold text-primary">{result.question}</p>
+              <p className="font-display text-lg font-semibold text-primary bounce-in">{result.question}</p>
             </div>
             <button
               onClick={handleCopy}
-              className="flex-shrink-0 p-2 rounded-md border border-border hover:bg-secondary transition-colors text-muted-foreground hover:text-primary"
+              className="flex-shrink-0 p-2 rounded-md border border-border hover:bg-secondary transition-all duration-300 text-muted-foreground hover:text-primary hover:scale-110"
               title="Copy answer"
             >
               {copied ? <CheckCheck className="h-4 w-4 text-primary" /> : <Copy className="h-4 w-4" />}

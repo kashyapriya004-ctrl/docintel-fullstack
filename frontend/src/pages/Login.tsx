@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { LogIn, Mail, Lock, Eye, EyeOff, BookOpen } from "lucide-react";
 
 const Login = () => {
   const { login } = useAuth();
@@ -28,8 +28,16 @@ const Login = () => {
   };
 
   return (
-    <div className="container py-16 md:py-28 max-w-md page-enter">
-      <div className="text-center mb-8">
+    <div className="container py-16 md:py-28 max-w-md page-enter relative overflow-hidden">
+      {/* Decorative floating icon */}
+      <div className="absolute top-20 right-[-40px] opacity-5 hidden md:block">
+        <BookOpen className="h-48 w-48 text-primary" />
+      </div>
+      <div className="absolute bottom-20 left-[-30px] opacity-5 hidden md:block">
+        <BookOpen className="h-32 w-32 text-accent" />
+      </div>
+
+      <div className="text-center mb-8 slide-from-left">
         <p className="kicker-text mb-2">Welcome Back</p>
         <h1 className="font-display text-3xl md:text-4xl font-bold text-primary">
           Sign In to <span className="accent-italic">DocIntel</span>
@@ -39,11 +47,14 @@ const Login = () => {
         </p>
       </div>
 
-      <div className="auth-card bg-card border rounded-xl p-8 shadow-sm">
+      <div className="auth-card bg-card border rounded-xl p-8 shadow-sm relative z-10">
+        {/* Top accent */}
+        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-xl bg-gradient-to-r from-primary via-accent to-gold" />
+        
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <div
-              className="bg-destructive/10 text-destructive text-sm rounded-lg p-3 font-sans border border-destructive/20 animate-fade-in-up"
+              className="bg-destructive/10 text-destructive text-sm rounded-lg p-3 font-sans border border-destructive/20 animate-fade-in-up shake"
             >
               {error}
             </div>
@@ -52,14 +63,14 @@ const Login = () => {
           {/* Email */}
           <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative group">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="pl-10 transition-all duration-200"
+                className="pl-10 transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 required
               />
             </div>
@@ -68,20 +79,20 @@ const Login = () => {
           {/* Password */}
           <div className="space-y-2 form-field">
             <label className="text-sm font-sans font-medium text-foreground">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <div className="relative group">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 type={showPass ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="pl-10 pr-10 transition-all duration-200"
+                className="pl-10 pr-10 transition-all duration-300 focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPass(!showPass)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-all duration-200 hover:scale-110"
               >
                 {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -91,7 +102,7 @@ const Login = () => {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2 btn-lift"
+            className="w-full bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold gap-2 btn-lift magnetic-btn"
           >
             <LogIn className="h-4 w-4" />
             {loading ? (
@@ -116,7 +127,7 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full flex items-center justify-center gap-2 font-sans font-medium hover:bg-muted/50 transition-all duration-200 hover:-translate-y-0.5"
+            className="w-full flex items-center justify-center gap-2 font-sans font-medium hover:bg-muted/50 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
             onClick={() => navigate("/search")}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">

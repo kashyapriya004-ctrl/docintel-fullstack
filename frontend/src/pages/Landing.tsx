@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, BookOpen, Globe, Brain, Zap, Users, Lock, ArrowRight, ChevronDown, CheckCircle, Sparkles } from "lucide-react";
+import { Search, BookOpen, Globe, Brain, Zap, Users, Lock, ArrowRight, ChevronDown, CheckCircle, Sparkles, FileText, GraduationCap, Award } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import { useEffect, useRef, useState, useCallback } from "react";
 
@@ -90,6 +90,116 @@ function useScrollProgress() {
   return progress;
 }
 
+function useTypingEffect(text: string, speed = 50, startDelay = 800) {
+  const [displayed, setDisplayed] = useState("");
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    setDisplayed("");
+    setDone(false);
+    let i = 0;
+    const timer = setTimeout(() => {
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          setDisplayed(text.slice(0, i + 1));
+          i++;
+        } else {
+          setDone(true);
+          clearInterval(interval);
+        }
+      }, speed);
+      return () => clearInterval(interval);
+    }, startDelay);
+    return () => clearTimeout(timer);
+  }, [text, speed, startDelay]);
+  return { displayed, done };
+}
+
+function useParallax() {
+  const [offset, setOffset] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setOffset(window.scrollY * 0.3);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return offset;
+}
+
+function useMousePosition() {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+  return pos;
+}
+
+const Particles = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particles: { x: number; y: number; vx: number; vy: number; size: number; opacity: number }[] = [];
+    for (let i = 0; i < 60; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2 + 1,
+        opacity: Math.random() * 0.5 + 0.2,
+      });
+    }
+    let animId: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(27, 64%, 46%, ${p.opacity})`;
+        ctx.fill();
+      });
+      animId = requestAnimationFrame(animate);
+    };
+    animate();
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    window.addEventListener("resize", resize);
+    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+  }, []);
+  return <canvas ref={canvasRef} id="particles-canvas" className="hidden md:block" />;
+};
+
+const FloatingIcons = () => (
+  <>
+    <div className="floating-icon floating-icon-1 hidden lg:block" style={{ top: "15%", right: "10%" }}>
+      <FileText className="h-16 w-16 text-accent" />
+    </div>
+    <div className="floating-icon floating-icon-2 hidden lg:block" style={{ top: "60%", right: "5%" }}>
+      <GraduationCap className="h-12 w-12 text-primary" />
+    </div>
+    <div className="floating-icon floating-icon-3 hidden lg:block" style={{ top: "30%", left: "5%" }}>
+      <Award className="h-14 w-14 text-gold" />
+    </div>
+    <div className="floating-icon floating-icon-4 hidden lg:block" style={{ bottom: "20%", left: "12%" }}>
+      <BookOpen className="h-10 w-10 text-accent" />
+    </div>
+  </>
+);
+
+const SparkleEffect = ({ style }: { style: React.CSSProperties }) => (
+  <div className="sparkle sparkle-anim" style={{ ...style, width: 12, height: 12 }}>
+    <div className="sparkle" style={{ width: 12, height: 12 }} />
+  </div>
+);
+
 /* ─── FAQ Item ─── */
 const FAQItem = ({ q, a, idx }: { q: string; a: string; idx: number }) => {
   const [open, setOpen] = useState(false);
@@ -160,6 +270,10 @@ const Landing = () => {
   const faqRef       = useScrollReveal();
   const ctaRef       = useScrollReveal();
   const scrollPct    = useScrollProgress();
+  const parallaxOffset = useParallax();
+  const mousePos = useMousePosition();
+  const heroText = "Instant Answers from India's Education Policies";
+  const { displayed: typedText, done: typingDone } = useTypingEffect(heroText, 45, 600);
 
   return (
     <div className="flex flex-col">
@@ -170,22 +284,44 @@ const Landing = () => {
       {/* ── HERO ── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-          <div className="orb orb-4" />
+          <div className="orb orb-1 parallax-bg" style={{ transform: `translateY(${parallaxOffset * 0.5}px)` }} />
+          <div className="orb orb-2 parallax-bg" style={{ transform: `translateY(${parallaxOffset * 0.3}px)` }} />
+          <div className="orb orb-3 parallax-bg" style={{ transform: `translateY(${parallaxOffset * 0.4}px)` }} />
+          <div className="orb orb-4 parallax-bg" style={{ transform: `translateY(${parallaxOffset * 0.6}px)` }} />
+          <Particles />
+          <FloatingIcons />
         </div>
-        <div className="absolute inset-0 bg-cover bg-center opacity-12" style={{ backgroundImage: `url(${heroBg})` }} />
+        <div className="absolute inset-0 bg-cover bg-center opacity-10 parallax-bg" style={{ backgroundImage: `url(${heroBg})`, transform: `translateY(${parallaxOffset * 0.2}px)` }} />
 
-        <div className="relative container py-28 md:py-48 flex flex-col items-center text-center">
+        {/* Sparkles */}
+        <SparkleEffect style={{ top: "20%", left: "15%" }} />
+        <SparkleEffect style={{ top: "35%", right: "20%" }} />
+        <SparkleEffect style={{ bottom: "30%", left: "25%" }} />
+
+        <div className="relative container py-28 md:py-48 flex flex-col items-center text-center z-10">
           {/* Glowing badge */}
-          <div className="glow-badge mb-6 hero-kicker">
+          <div className="glow-badge mb-6 hero-kicker glow-pulse">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-gold" />
+            </span>
             Policy Intelligence System
           </div>
 
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-primary leading-tight max-w-4xl hero-heading">
-            Instant Answers from India's{" "}
-            <span className="accent-italic animated-underline">Education Policies</span>
+            {!typingDone ? (
+              <>
+                Instant Answers from India's{" "}
+                <span className="accent-italic animated-underline">Education Policies</span>
+                <span className="typing-caret" />
+              </>
+            ) : (
+              <span className="word-reveal">
+                {heroText.split(" ").map((word, i) => (
+                  <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>{word}{" "}</span>
+                ))}
+              </span>
+            )}
           </h1>
 
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl font-body hero-subtitle">
@@ -194,7 +330,7 @@ const Landing = () => {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4 items-center hero-cta">
-            <Button asChild size="lg" className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold px-8 gap-2 btn-lift">
+            <Button asChild size="lg" className="bg-sienna hover:bg-sienna/90 text-sienna-foreground font-sans font-semibold px-8 gap-2 btn-lift magnetic-btn glow-pulse">
               <Link to="/search">
                 <Search className="h-4 w-4" />
                 Start Searching Free
@@ -207,8 +343,8 @@ const Landing = () => {
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground font-sans hero-cta flex items-center gap-4 flex-wrap justify-center" style={{ animationDelay: "0.85s" }}>
-            {["No credit card needed", "3 free guest queries", "Instant sourced answers"].map((t) => (
-              <span key={t} className="flex items-center gap-1.5">
+            {["No credit card needed", "3 free guest queries", "Instant sourced answers"].map((t, i) => (
+              <span key={t} className="flex items-center gap-1.5" style={{ animationDelay: `${0.9 + i * 0.1}s` }}>
                 <CheckCircle className="h-3.5 w-3.5 text-primary" />{t}
               </span>
             ))}
