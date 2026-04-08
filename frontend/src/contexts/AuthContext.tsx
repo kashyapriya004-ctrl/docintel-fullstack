@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 export type UserProfile = {
   id: string;
   fullName: string;
@@ -57,23 +59,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signup = async (data: { fullName: string; email: string; password: string; role: string }) => {
+    // Try backend first
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+      if (res.ok) {
+        // Backend worked, create local profile
+        const newUser: UserProfile = { id: Date.now().toString(), fullName: data.fullName, email: data.email, role: data.role };
+        setUser(newUser);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
+        const users = getUsers();
+        users.push({ ...newUser, password: data.password });
+        localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        sessionStorage.removeItem("docintel-guest-count");
+        setGuestQueries(0);
+        return { success: true };
+      }
+    } catch { /* backend not available, fall through to local */ }
+
+    // Fallback to local storage
     const users = getUsers();
     if (users.find((u) => u.email === data.email)) {
       return { success: false, error: "An account with this email already exists." };
     }
-    const newUser = { id: Date.now().toString(), fullName: data.fullName, email: data.email, role: data.role, password: data.password };
-    users.push(newUser);
+    const newUser: UserProfile = { id: Date.now().toString(), fullName: data.fullName, email: data.email, role: data.role };
+    users.push({ ...newUser, password: data.password });
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    const profile: UserProfile = { id: newUser.id, fullName: newUser.fullName, email: newUser.email, role: newUser.role };
-    setUser(profile);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(profile));
-    // Clear guest queries on login
+    setUser(newUser);
+    localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
     sessionStorage.removeItem("docintel-guest-count");
     setGuestQueries(0);
     return { success: true };
   };
 
   const login = async (email: string, password: string) => {
+    // Try backend first
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access_token) {
+          const users = getUsers();
+          const found = users.find((u) => u.email === email);
+          const profile: UserProfile = found || { id: "1", fullName: email.split("@")[0], email, role: "User" };
+          setUser(profile);
+          localStorage.setItem(SESSION_KEY, JSON.stringify(profile));
+          sessionStorage.removeItem("docintel-guest-count");
+          setGuestQueries(0);
+          return { success: true };
+        }
+      }
+    } catch { /* backend not available, fall through to local */ }
+
+    // Fallback to local storage
     const users = getUsers();
     const found = users.find((u) => u.email === email);
     if (!found) return { success: false, error: "No account found. Please create an account first." };
@@ -83,8 +128,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(SESSION_KEY, JSON.stringify(profile));
     sessionStorage.removeItem("docintel-guest-count");
     setGuestQueries(0);
-    // Clear guest history
-    localStorage.removeItem("docintel-history");
     return { success: true };
   };
 
