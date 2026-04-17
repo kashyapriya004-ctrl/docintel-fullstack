@@ -1,0 +1,10 @@
+
+> vite_react_shadcn_ts@0.0.0 dev
+> vite --port 5174
+
+
+  VITE v5.4.19  ready in 288 ms
+
+  ➜  Local:   http://localhost:5174/
+  ➜  Network: http://10.34.43.253:5174/
+  ➜  press h + enter to show help

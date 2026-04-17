@@ -1,0 +1,99 @@
+INFO:     Will watch for changes in these directories: ['/Users/ro/Desktop/DOCINTEL']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [59430] using WatchFiles
+INFO:     Started server process [59473]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+[db_init] Warning: Database initialization failed (check DNS/URL). Error: (psycopg2.OperationalError) could not translate host name "ep-proud-wind-a152og2l-pooler.ap-southeast-1.aws.neon.tech" to address: nodename nor servname provided, or not known
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[policy_fetcher] ✓ MOE_Schemes: 362 chars
+[policy_fetcher] Failed to fetch NEP_2020_About (https://www.education.gov.in/nep/about-nep): 404 Client Error: Not Found for url: https://www.education.gov.in/nep/about-nep
+[policy_fetcher] Failed to fetch NEP_2020_Highlights (https://www.education.gov.in/hi/nep2020): 404 Client Error: Not Found for url: https://www.education.gov.in/hi/nep2020
+[policy_fetcher] Failed to fetch AICTE_Functions (https://www.aicte-india.org/about/functions): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/functions
+[policy_fetcher] Failed to fetch AICTE_About (https://www.aicte-india.org/about/aicte): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/aicte
+[policy_fetcher] Failed to fetch AICTE_Approval (https://www.aicte-india.org/bureau/approval-process): 404 Client Error: Not Found for url: https://www.aicte.gov.in/bureau/approval-process
+[policy_fetcher] Failed to fetch NEP_2020_Highlights (https://www.education.gov.in/hi/nep2020): 404 Client Error: Not Found for url: https://www.education.gov.in/hi/nep2020
+[policy_fetcher] ✓ MOE_Schemes: 362 chars
+[policy_fetcher] Failed to fetch NEP_2020_About (https://www.education.gov.in/nep/about-nep): 404 Client Error: Not Found for url: https://www.education.gov.in/nep/about-nep
+[policy_fetcher] Failed to fetch AICTE_Approval (https://www.aicte-india.org/bureau/approval-process): 404 Client Error: Not Found for url: https://www.aicte.gov.in/bureau/approval-process
+[policy_fetcher] Failed to fetch AICTE_Functions (https://www.aicte-india.org/about/functions): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/functions
+[policy_fetcher] Failed to fetch AICTE_About (https://www.aicte-india.org/about/aicte): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/aicte
+[policy_fetcher] ✓ MOE_Schemes: 362 chars
+[policy_fetcher] Failed to fetch NEP_2020_Highlights (https://www.education.gov.in/hi/nep2020): 404 Client Error: Not Found for url: https://www.education.gov.in/hi/nep2020
+[policy_fetcher] Failed to fetch NEP_2020_About (https://www.education.gov.in/nep/about-nep): 404 Client Error: Not Found for url: https://www.education.gov.in/nep/about-nep
+[policy_fetcher] Failed to fetch AICTE_Approval (https://www.aicte-india.org/bureau/approval-process): 404 Client Error: Not Found for url: https://www.aicte.gov.in/bureau/approval-process
+[policy_fetcher] Failed to fetch AICTE_About (https://www.aicte-india.org/about/aicte): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/aicte
+[policy_fetcher] Failed to fetch AICTE_Functions (https://www.aicte-india.org/about/functions): 404 Client Error: Not Found for url: https://www.aicte.gov.in/about/functions
+[history] DB save failed (non-fatal): (psycopg2.OperationalError) could not translate host name "ep-proud-wind-a152og2l-pooler.ap-southeast-1.aws.neon.tech" to address: nodename nor servname provided, or not known
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[history] DB save failed (non-fatal): (psycopg2.OperationalError) could not translate host name "ep-proud-wind-a152og2l-pooler.ap-southeast-1.aws.neon.tech" to address: nodename nor servname provided, or not known
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[history] DB save failed (non-fatal): (psycopg2.OperationalError) could not translate host name "ep-proud-wind-a152og2l-pooler.ap-southeast-1.aws.neon.tech" to address: nodename nor servname provided, or not known
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:59889 - "POST /api/ask HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/answer_generator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [59473]
+INFO:     Started server process [60956]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/answer_generator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [60956]
+INFO:     Started server process [60982]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [60982]
+INFO:     Started server process [61076]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61076]
+INFO:     Started server process [61109]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/answer_generator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61109]
+INFO:     Started server process [61240]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/answer_generator.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61240]
+INFO:     Started server process [61269]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [61269]
+INFO:     Stopping reloader process [59430]

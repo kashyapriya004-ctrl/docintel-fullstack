@@ -1,0 +1,10 @@
+
+> vite_react_shadcn_ts@0.0.0 dev
+> vite --host
+
+
+  VITE v5.4.19  ready in 211 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://10.55.216.253:5173/
+  ➜  press h + enter to show help

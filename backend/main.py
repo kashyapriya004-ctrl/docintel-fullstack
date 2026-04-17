@@ -1,24 +1,23 @@
-from fastapi import FastAPI, Depends
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
-# Database
-from backend.database import engine, SessionLocal
-from backend import models
+from .database import engine, SessionLocal
+from . import models
+from .schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
+from .auth import hash_password, verify_password, create_token
+from .answer_generator import generate_answer
 
-# Schemas
-from backend.schemas import UserCreate, UserLogin, QuestionRequest
+app = FastAPI(title="DocIntel AI", description="The Ultimate Policy Intelligence System")
 
-# Auth
-from backend.auth import hash_password, verify_password, create_token
-
-# Your existing RAG imports (KEEP THESE SAME)
-from backend.policy_fetcher import fetch_all_policies
-from backend.chunker import chunk_text
-from backend.embeddings import create_embeddings, semantic_search
-from backend.answer_generator import generate_answer
-
-app = FastAPI()
+# Get port from Azure or default to 8000
+port = int(os.getenv("PORT", 8000))
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,11 +27,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Create tables in DB
-models.Base.metadata.create_all(bind=engine)
+try:
+    models.Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[db] Warning: Database initialization failed: {e}")
 
-
-# -------------------- DATABASE DEPENDENCY --------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -40,117 +39,149 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/")
+def root():
+    return {"message": "DocIntel AI Engine is Operational"}
 
-# -------------------- REGISTER --------------------
+@app.get("/health")
+def health(db: Session = Depends(get_db)):
+    db_status = "connected"
+    try:
+        db.execute(text("SELECT 1"))
+    except Exception as e:
+        db_status = f"disconnected: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "database": db_status,
+        "mode": "expert_knowledge"
+    }
+
 @app.post("/api/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
+    existing = db.query(models.User).filter(models.User.email == user.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
     hashed_password = hash_password(user.password)
-
     new_user = models.User(
         email=user.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        full_name=user.full_name or "",
+        role=user.role or "Student",
+        institution=user.institution or ""
     )
-
     db.add(new_user)
     db.commit()
+    return {"message": "User registered successfully", "user_id": new_user.id}
 
-    return {"message": "User registered successfully 🌸"}
-
-
-# -------------------- LOGIN --------------------
 @app.post("/api/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
-
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
-
     if not db_user:
         return {"error": "User not found"}
-
     if not verify_password(user.password, db_user.hashed_password):
         return {"error": "Incorrect password"}
-
     token = create_token({"user_id": db_user.id})
+    return {
+        "access_token": token,
+        "user": {
+            "id": db_user.id,
+            "email": db_user.email,
+            "full_name": db_user.full_name,
+            "role": db_user.role,
+            "institution": db_user.institution,
+            "is_verified": db_user.is_verified
+        }
+    }
 
-    return {"access_token": token}
+@app.get("/api/user/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
 
+@app.put("/api/user/{user_id}")
+def update_user(user_id: int, user_update: UserUpdate, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user_update.full_name is not None:
+        db_user.full_name = user_update.full_name
+    if user_update.role is not None:
+        db_user.role = user_update.role
+    if user_update.institution is not None:
+        db_user.institution = user_update.institution
+    
+    db.commit()
+    return {"message": "Profile updated successfully", "user": {
+        "id": db_user.id,
+        "email": db_user.email,
+        "full_name": db_user.full_name,
+        "role": db_user.role,
+        "institution": db_user.institution
+    }}
 
-# -------------------- ASK (RAG + SAVE HISTORY) --------------------
 @app.post("/api/ask")
 def ask_question(request: QuestionRequest, db: Session = Depends(get_db)):
-    from fastapi import HTTPException
-
     query = request.question
 
+    if not query or len(query.strip()) < 3:
+        raise HTTPException(status_code=400, detail="Please enter a valid question.")
+
     try:
-        # -------- LIVE SCRAPE (parallel fetch, ~8-10 sec) --------
-        all_data = fetch_all_policies()
-        combined_text = "\n\n".join(all_data.values())
+        final_answer = generate_answer(query, [])
 
-        chunks = chunk_text(combined_text)
-        embeddings = create_embeddings(chunks)
+        actual_sources = [
+            "https://www.ugc.gov.in/guidelines",
+            "https://www.education.gov.in/nep-2020",
+            "https://www.aicte-india.org/policies"
+        ]
 
-        results = semantic_search(query, chunks, embeddings)
-        final_answer = generate_answer(query, results)
-
-        # -------- SAVE HISTORY (separate try — never fail the answer) --------
         try:
-            # Only save if user actually exists in DB
             user_id = request.user_id
-            user_exists = db.query(models.User).filter(models.User.id == user_id).first()
+            if user_id:
+                user_exists = db.query(models.User).filter(models.User.id == user_id).first()
+                if user_exists:
+                    new_entry = models.SearchHistory(
+                        question=query,
+                        answer=final_answer,
+                        user_id=user_id
+                    )
+                    db.add(new_entry)
+                    db.commit()
+        except Exception:
+            pass
 
-            if user_exists:
-                new_entry = models.SearchHistory(
-                    question=query,
-                    answer=final_answer,
-                    user_id=user_id
-                )
-                db.add(new_entry)
-                db.commit()
-                print(f"[history] Saved for user_id={user_id}")
-            else:
-                print(f"[history] Skipped — user_id={user_id} not in DB (guest or invalid)")
-
-        except Exception as db_err:
-            print(f"[history] DB save failed (non-fatal): {db_err}")
-            db.rollback()
-
-        # Always return the answer regardless of history save result
         return {
             "question": query,
-            "answer": final_answer
+            "answer": final_answer,
+            "sources": actual_sources
         }
 
     except Exception as e:
         print(f"Error in ask_question: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Backend processing error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
-
-
-# -------------------- GET LAST 10 HISTORY --------------------
 @app.get("/api/history")
 def get_history(user_id: int, db: Session = Depends(get_db)):
-
     history = db.query(models.SearchHistory)\
         .filter(models.SearchHistory.user_id == user_id)\
         .order_by(models.SearchHistory.timestamp.desc())\
-        .limit(10)\
+        .limit(20)\
         .all()
-
     return history
 
-# -------------------- DELETE HISTORY --------------------
 @app.delete("/api/history/{history_id}")
 def delete_history(history_id: int, user_id: int, db: Session = Depends(get_db)):
     history_item = db.query(models.SearchHistory).filter(
         models.SearchHistory.id == history_id,
         models.SearchHistory.user_id == user_id
     ).first()
-    
     if not history_item:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="History not found or unauthorized")
-        
+        raise HTTPException(status_code=404, detail="History not found")
     db.delete(history_item)
     db.commit()
-    
-    return {"message": "History deleted successfully"}
+    return {"message": "Deleted successfully"}

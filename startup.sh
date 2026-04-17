@@ -1,61 +1,46 @@
 #!/bin/bash
-set -e
 
-echo "🚀 Starting DocIntel..."
+# DocIntel AI - Startup Script
+# Run: ./startup.sh
 
-# Colors
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Kill any existing instances
+lsof -ti:9000 | xargs kill 2>/dev/null
+lsof -ti:5173 | xargs kill 2>/dev/null
+lsof -ti:5174 | xargs kill 2>/dev/null
 
-# Get the directory where the script is located
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR"
+echo "Starting DocIntel AI..."
 
-# Check if backend venv exists and activate it
-if [ -d "venv/bin" ]; then
-    echo -e "${YELLOW}Activating Python virtual environment...${NC}"
-    source venv/bin/activate
-    
-    # Check if required packages are installed
-    if ! python -c "import fastapi" 2>/dev/null; then
-        echo -e "${YELLOW}Installing backend dependencies...${NC}"
-        pip install -r requirements.txt -q
-    fi
-    
-    echo -e "${GREEN}Starting FastAPI backend on http://localhost:8000${NC}"
-    python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 &
-    BACKEND_PID=$!
-else
-    echo -e "${YELLOW}Backend venv not found, skipping backend startup${NC}"
-fi
+# Set your Gemini API key here (or export GEMINI_API_KEY before running)
+export GEMINI_API_KEY="AIzaSyBBWw96iCm4WZYhz_DCfaDUDkFNqjjnhDk"
+
+# Unset conflicting key if present
+unset GOOGLE_API_KEY
+
+cd /Users/ro/Desktop/DOCINTEL
+
+# Start backend
+echo "Starting backend on http://127.0.0.1:9000 ..."
+nohup python3 -m uvicorn backend.main:app --host 127.0.0.1 --port 9000 > /tmp/docintel-backend.log 2>&1 &
+
+# Wait for backend to start
+sleep 3
 
 # Start frontend
-if [ -d "frontend" ]; then
-    cd frontend
-    
-    # Check if node_modules exists
-    if [ ! -d "node_modules" ]; then
-        echo -e "${YELLOW}Installing frontend dependencies...${NC}"
-        npm install -q
-    fi
-    
-    echo -e "${GREEN}Starting React frontend on http://localhost:5173${NC}"
-    npm run dev &
-    FRONTEND_PID=$!
-else
-    echo -e "${YELLOW}Frontend directory not found${NC}"
-fi
+echo "Starting frontend on http://localhost:5173 ..."
+cd /Users/ro/Desktop/DOCINTEL/frontend
+nohup npm run dev > /tmp/docintel-frontend.log 2>&1 &
+
+sleep 3
 
 echo ""
-echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}  DocIntel is running!${NC}"
-echo -e "${GREEN}  Frontend: http://localhost:5173${NC}"
-echo -e "${GREEN}  Backend:  http://localhost:8000${NC}"
-echo -e "${GREEN}  API Docs: http://localhost:8000/docs${NC}"
-echo -e "${GREEN}═══════════════════════════════════════════════════${NC}"
+echo "=================================="
+echo "  DocIntel AI is running!"
+echo "=================================="
+echo "  Frontend: http://localhost:5173"
+echo "  Backend:  http://127.0.0.1:9000"
+echo "  API Docs: http://127.0.0.1:9000/docs"
+echo "=================================="
 echo ""
 echo "Press Ctrl+C to stop all services"
-
-# Wait for any process to exit
-wait
+echo "Or run: lsof -ti:9000 | xargs kill  # to stop backend"
+echo "     : lsof -ti:5173 | xargs kill    # to stop frontend"

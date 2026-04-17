@@ -311,15 +311,14 @@ const Landing = () => {
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-primary leading-tight max-w-4xl hero-heading">
             {!typingDone ? (
               <>
-                Instant Answers from India's{" "}
+                <span>Instant Answers from India&apos;s</span>
+                <span> </span>
                 <span className="accent-italic animated-underline">Education Policies</span>
                 <span className="typing-caret" />
               </>
             ) : (
               <span className="word-reveal">
-                {heroText.split(" ").map((word, i) => (
-                  <span key={i} style={{ animationDelay: `${i * 0.08}s` }}>{word}{" "}</span>
-                ))}
+                Instant Answers from India&apos;s Education Policies
               </span>
             )}
           </h1>
@@ -484,44 +483,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ── SAMPLE QUESTIONS ── */}
-      <section className="py-16 border-y border-border bg-secondary/30">
-        <div className="container max-w-2xl text-center">
-          <p className="kicker-text mb-3">Try These</p>
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-primary mb-8">
-            Sample <span className="accent-italic">Questions</span>
-          </h2>
-          <div className="flex flex-col gap-3 text-left">
-            {sampleQuestions.map((sq, i) => (
-              <Link
-                key={sq}
-                to={`/search`}
-                className="sample-q-item block px-5 py-4 border rounded-lg bg-background font-sans text-sm text-foreground"
-                style={{ animationDelay: `${i * 0.08}s` }}
-              >
-                <span className="text-accent font-semibold mr-2">→</span>{sq}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section className="py-20 md:py-28">
-        <div className="container max-w-3xl">
-          <div className="text-center mb-12 reveal-section" ref={faqRef}>
-            <p className="kicker-text mb-3">Frequently Asked</p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-primary">
-              Questions & <span className="accent-italic">Answers</span>
-            </h2>
-          </div>
-          <div className="bg-card border rounded-xl px-6 md:px-8 shadow-sm">
-            {faqs.map((f, i) => (
-              <FAQItem key={f.q} q={f.q} a={f.a} idx={i} />
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ── CTA ── */}
       <section className="py-20 md:py-32 bg-secondary/30 relative overflow-hidden">

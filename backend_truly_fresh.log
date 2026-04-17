@@ -1,0 +1,12 @@
+INFO:     Will watch for changes in these directories: ['/Users/ro/Desktop/DOCINTEL']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [74865] using WatchFiles
+INFO:     Started server process [74908]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+INFO:     127.0.0.1:64818 - "GET /health HTTP/1.1" 200 OK
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.

@@ -1,16 +1,23 @@
-from passlib.context import CryptContext
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 from jose import jwt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "my_super_secret_key"
 ALGORITHM = "HS256"
 
 def hash_password(password: str):
-    return pwd_context.hash(password)
+    salt = secrets.token_hex(16)
+    pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000)
+    return f"{salt}${pwd_hash.hex()}"
 
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        salt, pwd_hash = hashed_password.split('$')
+        check_hash = hashlib.pbkdf2_hmac('sha256', plain_password.encode(), salt.encode(), 100000)
+        return check_hash.hex() == pwd_hash
+    except:
+        return False
 
 def create_token(data: dict):
     to_encode = data.copy()

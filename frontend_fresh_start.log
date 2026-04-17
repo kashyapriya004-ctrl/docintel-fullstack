@@ -1,0 +1,11 @@
+
+> vite_react_shadcn_ts@0.0.0 dev
+> vite
+
+11:26:35 AM [vite] vite.config.ts changed, restarting server...
+
+  VITE v5.4.19  ready in 26 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: http://10.34.43.253:5173/
+  ➜  press h + enter to show help

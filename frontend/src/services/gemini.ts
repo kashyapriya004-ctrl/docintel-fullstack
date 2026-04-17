@@ -1,4 +1,5 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+// Absolute URL for direct stability, fallback to relative proxy for security
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 export const generatePolicyResponse = async (prompt: string, _history: { role: string; content: string }[]) => {
   const controller = new AbortController();
@@ -18,17 +19,23 @@ export const generatePolicyResponse = async (prompt: string, _history: { role: s
     }
 
     const data = await res.json();
-    return data.answer || "No response generated.";
+    return {
+      answer: data.answer || "No response generated.",
+      sources: data.sources || []
+    };
   } catch (error: unknown) {
     console.error("Error generating policy response:", error);
+    const errorResult = { answer: "", sources: [] };
     if (error instanceof DOMException && error.name === "AbortError") {
-      return "The request timed out after 2 minutes. The backend may be starting up — please try again.";
+      errorResult.answer = "The request timed out after 2 minutes. The backend may be starting up — please try again.";
+    } else if (error instanceof TypeError && error.message.includes("fetch")) {
+      const target = `${BACKEND_URL}/api/ask`;
+      errorResult.answer = `Connection Error: Could not reach the DocIntel backend at ${target}. Please verify that the backend is running on port 8000 and that CORS is enabled.`;
+    } else {
+      const msg = error instanceof Error ? error.message : String(error);
+      errorResult.answer = `Error: ${msg}. Please try again.`;
     }
-    if (error instanceof TypeError && error.message.includes("fetch")) {
-      return "Could not reach the DocIntel backend. Please make sure the backend server is running on port 8000.";
-    }
-    const msg = error instanceof Error ? error.message : String(error);
-    return `Error: ${msg}. Please try again.`;
+    return errorResult;
   } finally {
     clearTimeout(timeout);
   }

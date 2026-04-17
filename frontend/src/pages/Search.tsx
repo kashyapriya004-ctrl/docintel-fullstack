@@ -12,41 +12,6 @@ type SearchResult = {
   sources: string[];
 };
 
-/* ── Confetti Effect ── */
-const Confetti = () => {
-  const [pieces, setPieces] = useState<{ id: number; left: number; color: string; delay: number; size: number }[]>([]);
-  useEffect(() => {
-    const colors = ["hsl(var(--sienna))", "hsl(var(--accent))", "hsl(var(--gold))", "hsl(var(--primary))", "hsl(var(--olive))"];
-    const newPieces = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 0.5,
-      size: Math.random() * 8 + 6,
-    }));
-    setPieces(newPieces);
-    const timer = setTimeout(() => setPieces([]), 4000);
-    return () => clearTimeout(timer);
-  }, []);
-  return (
-    <>
-      {pieces.map((p) => (
-        <div
-          key={p.id}
-          className="confetti-piece"
-          style={{
-            left: `${p.left}%`,
-            background: p.color,
-            animationDelay: `${p.delay}s`,
-            width: p.size,
-            height: p.size,
-            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
-          }}
-        />
-      ))}
-    </>
-  );
-};
 
 /* ── Animated loading bar ── */
 const LoadingBar = () => (
@@ -121,15 +86,13 @@ const Search = () => {
     setIsLoading(true);
     setResult(null);
 
-    const answer = await generatePolicyResponse(queryText, []);
+    const resultData = await generatePolicyResponse(queryText, []);
+    const { answer, sources: dynamicSources } = resultData;
 
     const response: SearchResult = {
       question: queryText,
       answer,
-      sources: [
-        "https://www.ugc.gov.in/pdfnews/3631340_UGC-Guidelines.pdf",
-        "https://www.aicte-india.org/bureau/approval-process",
-      ],
+      sources: dynamicSources,
     };
 
     const isError =
@@ -147,7 +110,6 @@ const Search = () => {
         timestamp: new Date().toISOString(),
       });
       localStorage.setItem("docintel-history", JSON.stringify(stored.slice(0, 50)));
-      setShowConfetti(true);
     }
 
     if (!isAuthenticated) incrementGuestQuery();
@@ -168,7 +130,6 @@ const Search = () => {
 
   return (
     <div className="container py-12 md:py-20 max-w-3xl page-enter">
-      {showConfetti && <Confetti />}
       <GuestLimitModal open={showLimitModal} onClose={() => setShowLimitModal(false)} />
 
       {/* Header */}
