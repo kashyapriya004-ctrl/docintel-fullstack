@@ -40,6 +40,23 @@ chmod +x startup.sh
 ./startup.sh
 ```
 
+## Azure Deployment
+
+### Backend Deployment
+
+1. Create Azure App Service (Python)
+2. Add App Settings:
+   - `GEMINI_API_KEY` = your Gemini API key
+   - `PORT` = `8000`
+3. Connect GitHub repo in Deployment Center
+4. Code pushes to main will auto-deploy
+
+### Frontend Deployment
+
+1. Build the frontend: `cd frontend && npm run build`
+2. Deploy the `dist/` folder to Azure Static Web Apps or Vercel
+3. Update `VITE_BACKEND_URL` in `.env` to point to your Azure backend URL
+
 ## Features
 
 - Ask questions about education policies in plain English
@@ -48,10 +65,11 @@ chmod +x startup.sh
 - Guest mode (3 free queries)
 - User accounts with search history
 - Beautiful animated UI
+- Account management with profile settings
 
 ## Tech Stack
 
 - **Frontend**: React + TypeScript + Tailwind CSS + Vite
 - **Backend**: FastAPI + Python
 - **AI**: Google Gemini
-- **Data**: Live policy scraping from government websites
+- **Data**: Expert knowledge mode (no scraping)

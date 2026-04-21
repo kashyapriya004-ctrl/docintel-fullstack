@@ -22,7 +22,7 @@ const steps = [
 const stats = [
   { value: "3+",       label: "Live Gov. Sources",  end: 3 },
   { value: "Real‑time", label: "Policy Scraping",   end: null },
-  { value: "Gemini AI", label: "Powered Engine",    end: null },
+  { value: "AI‑Powered", label: "Smart Engine",      end: null },
   { value: "Free",      label: "to Try",            end: null },
 ];
 

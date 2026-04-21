@@ -8,20 +8,44 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
-from .database import engine, SessionLocal
-from . import models
-from .schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
-from .auth import hash_password, verify_password, create_token
-from .answer_generator import generate_answer
+try:
+    from .database import engine, SessionLocal
+    from . import models
+    from .schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
+    from .auth import hash_password, verify_password, create_token
+    from .answer_generator import generate_answer
+except (ImportError, ValueError):
+    from database import engine, SessionLocal
+    import models
+    from schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
+    from auth import hash_password, verify_password, create_token
+    from answer_generator import generate_answer
 
 app = FastAPI(title="DocIntel AI", description="The Ultimate Policy Intelligence System")
 
 # Get port from Azure or default to 8000
 port = int(os.getenv("PORT", 8000))
 
+# Get allowed origins from environment variable or default to localhost
+raw_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+allowed_origins = [o.strip().rstrip("/") for o in raw_origins if o.strip()]
+
+# Add standard local origins if nothing is specified or as a safety net
+default_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
+    "https://doc_intel.vercel.app" # Placeholder example
+]
+
+for origin in default_origins:
+    if origin not in allowed_origins:
+        allowed_origins.append(origin)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -185,3 +209,8 @@ def delete_history(history_id: int, user_id: int, db: Session = Depends(get_db))
     db.delete(history_item)
     db.commit()
     return {"message": "Deleted successfully"}
+
+if __name__ == "__main__":
+    import uvicorn
+    # Use the port variable defined at the top of the file
+    uvicorn.run(app, host="0.0.0.0", port=port)

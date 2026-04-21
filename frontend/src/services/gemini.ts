@@ -1,5 +1,6 @@
-// Absolute URL for direct stability, fallback to relative proxy for security
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+// Absolute URL for direct stability, stripped of trailing slash to prevent double-slashes
+const rawUrl = import.meta.env.VITE_BACKEND_URL || "";
+const BACKEND_URL = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
 
 export const generatePolicyResponse = async (prompt: string, _history: { role: string; content: string }[]) => {
   const controller = new AbortController();

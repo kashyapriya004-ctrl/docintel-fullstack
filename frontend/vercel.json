@@ -1,10 +1,6 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://docintel-backend-2026-e6hmfbgyhxg3ewfq.southeastasia-01.azurewebsites.net/api/:path*"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

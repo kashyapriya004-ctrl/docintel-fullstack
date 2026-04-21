@@ -38,8 +38,8 @@ npm run dev
 
 ### Access Points
 - **Frontend**: http://localhost:5173 (or 5174 if 5173 is busy)
-- **Backend API**: http://127.0.0.1:9000
-- **API Documentation**: http://127.0.0.1:9000/docs
+- **Backend API**: http://127.0.0.1:8000
+- **API Documentation**: http://127.0.0.1:8000/docs
 
 ---
 
@@ -169,7 +169,7 @@ Display to User
 ### Step-by-Step Flow
 
 1. **User types question** in the Search page textarea
-2. **Frontend sends POST** to `http://127.0.0.1:9000/api/ask` with `{question, user_id}`
+2. **Frontend sends POST** to `http://127.0.0.1:8000/api/ask` with `{question, user_id}`
 3. **Backend receives** the request in `main.py`
 4. **Scope Detection** checks if question contains education keywords
 5. **If NOT education**: Returns polite "I can only help with..." message
@@ -250,14 +250,14 @@ Removes all markdown formatting:
 
 ### Health Check
 ```
-GET http://127.0.0.1:9000/health
+GET http://127.0.0.1:8000/health
 
 Response: {"status": "healthy"}
 ```
 
 ### Ask a Question
 ```
-POST http://127.0.0.1:9000/api/ask
+POST http://127.0.0.1:8000/api/ask
 Content-Type: application/json
 
 {
@@ -273,7 +273,7 @@ Response: {
 
 ### Register User
 ```
-POST http://127.0.0.1:9000/api/register
+POST http://127.0.0.1:8000/api/register
 Content-Type: application/json
 
 {
@@ -286,7 +286,7 @@ Response: {"message": "Registration successful!"}
 
 ### Login User
 ```
-POST http://127.0.0.1:9000/api/login
+POST http://127.0.0.1:8000/api/login
 Content-Type: application/json
 
 {
@@ -299,7 +299,7 @@ Response: {"access_token": "eyJhbGc..."}
 
 ### Get History
 ```
-GET http://127.0.0.1:9000/api/history?user_id=1
+GET http://127.0.0.1:8000/api/history?user_id=1
 
 Response: [
   {
@@ -313,7 +313,7 @@ Response: [
 
 ### Delete History Item
 ```
-DELETE http://127.0.0.1:9000/api/history/1?user_id=1
+DELETE http://127.0.0.1:8000/api/history/1?user_id=1
 
 Response: {"message": "Deleted successfully"}
 ```
@@ -395,10 +395,10 @@ unset GOOGLE_API_KEY
 ### Frontend Can't Connect to Backend
 ```bash
 # Check backend is running
-curl http://127.0.0.1:9000/health
+curl http://127.0.0.1:8000/health
 
 # Update .env file
-echo "VITE_BACKEND_URL=\"http://127.0.0.1:9000\"" > frontend/.env
+echo "VITE_BACKEND_URL=\"http://127.0.0.1:8000\"" > frontend/.env
 
 # Restart frontend
 ```
@@ -427,7 +427,7 @@ rm /Users/ro/Desktop/DOCINTEL/docintel.db
 
 ### Frontend (.env)
 ```bash
-VITE_BACKEND_URL="http://127.0.0.1:9000"
+VITE_BACKEND_URL="http://127.0.0.1:8000"
 ```
 
 ### Backend (export commands)
@@ -622,7 +622,7 @@ npx localtunnel --port 9000
 
 For issues or questions:
 1. Check this document first
-2. Check API docs: http://127.0.0.1:9000/docs
+2. Check API docs: http://127.0.0.1:8000/docs
 3. Check backend logs: `cat /tmp/docintel-backend.log`
 4. Check frontend logs: `cat /tmp/docintel-frontend.log`
 
