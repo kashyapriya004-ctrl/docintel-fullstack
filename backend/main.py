@@ -9,12 +9,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 
 try:
-    from .database import engine, SessionLocal
-    from . import models
-    from .schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
-    from .auth import hash_password, verify_password, create_token
-    from .answer_generator import generate_answer
-except (ImportError, ValueError):
+    from backend.database import engine, SessionLocal
+    from backend import models
+    from backend.schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
+    from backend.auth import hash_password, verify_password, create_token
+    from backend.answer_generator import generate_answer
+except (ImportError, ValueError, ModuleNotFoundError):
     from database import engine, SessionLocal
     import models
     from schemas import UserCreate, UserLogin, QuestionRequest, UserResponse, UserUpdate
